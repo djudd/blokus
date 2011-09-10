@@ -50,7 +50,7 @@ void destroy(Node* node) {
 void setOwner(i64* board, short player, int x, int y) {
     i64 old = board[x];
     board[x] = board[x] + (pow5(y) * player);
-    printf("setting (%d, %d) owner to %d; row was %llu, now %llu\n", x, y, player, old, board[x]);
+//    printf("setting (%d, %d) owner to %d; row was %llu, now %llu\n", x, y, player, old, board[x]);
 }
 
 short owner(i64* board, int x, int y) {
@@ -75,21 +75,21 @@ void assign(i64* board, short player, Node* node) {
 int touchesCorner(i64* board, short player, int x, int y) {
     if (x+1 < BOARD_SIZE) {
         if (y+1 < BOARD_SIZE && hasOwner(board, player, x+1, y+1)) {
-            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x+1, y+1, owner(board, x+1,y+1));
+//            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x+1, y+1, owner(board, x+1,y+1));
             return true;
         }
         if (y-1 >= 0 && hasOwner(board, player, x+1, y-1)) {
-            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x+1, y-1, owner(board, x+1,y-1));
+//            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x+1, y-1, owner(board, x+1,y-1));
             return true;
         }
     }
     if (x-1 >= 0) {
         if (y+1 < BOARD_SIZE && hasOwner(board, player, x-1, y+1)) {
-            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x-1, y+1, owner(board, x-1,y+1));
+//            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x-1, y+1, owner(board, x-1,y+1));
             return true;
         }
         if (y-1 >= 0 && hasOwner(board, player, x-1, y-1)) {
-            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x-1, y-1, owner(board, x-1,y-1));
+//            printf("(%d, %d) touches (%d, %d) owned by %d\n", x, y, x-1, y-1, owner(board, x-1,y-1));
             return true;
         }
     }
@@ -161,9 +161,9 @@ Node* availableCorners(i64* board, short player) {
 
 i64* afterMove(i64* board, short player, Node* node) {
     i64* child = (i64*) malloc(BOARD_SIZE * sizeof(i64));
-    for (int i=0; i<BOARD_SIZE; i++) printf("board[%d]: %llu\n", i, board[i]);
-    memcpy(child, board, BOARD_SIZE);
-    for (int i=0; i<BOARD_SIZE; i++) printf("child[%d]: %llu\n", i, child[i]);
+    for (int i=0; i<BOARD_SIZE; i++)
+        child[i] = board[i];
+//    memcpy(child, board, BOARD_SIZE);
     assign(child, player, node);
     return child;
 }
