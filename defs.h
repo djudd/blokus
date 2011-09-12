@@ -44,6 +44,7 @@ void generatePlacements();
 
 i64 bit(i8 x, i8 y);
 
+// TODO this probably shouldn't have pointers, it should have a field per array value and we should use pointer arithmetic
 typedef struct state {
     i8 turn;
     i64* board;

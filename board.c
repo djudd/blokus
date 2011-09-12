@@ -5,18 +5,28 @@
 #include "defs.h"
 
 i64 pow5(i8 n) {
-    // TODO: This could be a switch statement...
-    i64 p = 5;
-    i64 r = 1;
-    while (n > 0)
-    {
-        if (n % 2 == 1)
-            r *= p;
-        p *= p;
-        n /= 2;
+    switch (n) {
+        case 0: return 1;
+        case 1: return 5;
+        case 2: return 5*5;
+        case 3: return 5*5*5;
+        case 4: return 5*5*5*5;
+        case 5: return 5*5*5*5*5;
+        case 6: return 5*5*5*5*5*5;
+        case 7: return 5*5*5*5*5*5*5;
+        case 8: return 5*5*5*5*5*5*5*5;
+        case 9: return 5*5*5*5*5*5*5*5*5;
+        case 10: return 5*5*5*5*5*5*5*5*5*5;
+        case 11: return 5*5*5*5*5*5*5*5*5*5*5;
+        case 12: return 5*5*5*5*5*5*5*5*5*5*5*5;
+        case 13: return 5*5*5*5*5*5*5*5*5*5*5*5*5;
+        case 14: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5;
+        case 15: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
+        case 16: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
+        case 17: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
+        case 18: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
+        case 19: return 5*5*5*5**5*5*5*5*55*5*5*5*5*5*5*5*5*5;
     }
-
-    return r;
 }
 
 void setOwner(i64* board, i8 player, i8 x, i8 y) {
@@ -123,7 +133,7 @@ GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell
 
     newNode->turn = parent->turn + 1;
 
-    // TODO cleanup and optimize - separate function, share malloc?
+    // TODO cleanup and optimize - separate function, share malloc (one per new GameState)?
     i32* pieces = malloc(4*sizeof(i32));
     for (int i=0; i<4; i++) pieces[i] = parent->pieces[i];
     pieces[player-1] = pieces[player-1] ^ (1 << piece);

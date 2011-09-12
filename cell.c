@@ -21,6 +21,7 @@ void destroyCells(Cell* node) {
     }
 }
 
+// TODO optimize malloc for tiny-object case?
 Corner* addCorner(i8 x, i8 y, i8 corner, Corner* next) {
     Corner* newNode = malloc(sizeof(Corner));
     newNode->x = x;
