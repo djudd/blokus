@@ -59,7 +59,11 @@ void destroyPlacements(Placement* node) {
 }
 
 void generatePlacements() {
-    placements = malloc(NUM_PIECES*NUM_CORNERS*sizeof(Placement*));
+    placements = malloc(NUM_PIECES*sizeof(Placement**));
+
+    for (int i=0; i<NUM_PIECES; i++) {
+        placements[i] = malloc(NUM_CORNERS*sizeof(Placement*));
+    }
 
     placements[0][0] = NULL;
     placements[0][0] = addPlacement(addCell(0,0,NULL),placements[0][0]);
