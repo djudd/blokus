@@ -16,16 +16,16 @@ i64 pow5(i8 n) {
         case 7: return 5*5*5*5*5*5*5;
         case 8: return 5*5*5*5*5*5*5*5;
         case 9: return 5*5*5*5*5*5*5*5*5;
-        case 10: return 5*5*5*5*5*5*5*5*5*5;
-        case 11: return 5*5*5*5*5*5*5*5*5*5*5;
-        case 12: return 5*5*5*5*5*5*5*5*5*5*5*5;
-        case 13: return 5*5*5*5*5*5*5*5*5*5*5*5*5;
-        case 14: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5;
-        case 15: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
-        case 16: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
-        case 17: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
-        case 18: return 5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5*5;
-        case 19: return 5*5*5*5**5*5*5*5*55*5*5*5*5*5*5*5*5*5;
+        case 10: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 11: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 12: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 13: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 14: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 15: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 16: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 17: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 18: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        case 19: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
     }
 }
 

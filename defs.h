@@ -5,7 +5,7 @@
 #define BOARD_SIZE 20
 #define NUM_PIECES 20
 #define NUM_PLAYERS 4
-#define NUM_CORNER 4
+#define NUM_CORNERS 4
 
 #define UPPER_LEFT 0
 #define LOWER_LEFT 1
