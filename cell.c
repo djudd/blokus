@@ -3,7 +3,7 @@
 #include <string.h>
 #include "defs.h"
 
-Cell* addCell(int x, int y, Cell* next) {
+Cell* addCell(i8 x, i8 y, Cell* next) {
     Cell* newNode = malloc(sizeof(Cell));
     newNode->x = x;
     newNode->y = y;
@@ -11,12 +11,31 @@ Cell* addCell(int x, int y, Cell* next) {
     return newNode;
 }
 
-void destroy(Cell* cell) {
-    Cell* next = cell->next;
-    free(cell);
+void destroyCells(Cell* node) {
+    Cell* next = node->next;
+    free(node);
     while(next != NULL) {
-       cell = next;
-       next = cell->next;
-       free(cell);
+       node = next;
+       next = node->next;
+       free(node);
+    }
+}
+
+Corner* addCorner(i8 x, i8 y, i8 corner, Corner* next) {
+    Corner* newNode = malloc(sizeof(Corner));
+    newNode->x = x;
+    newNode->y = y;
+    newNode->corner = corner;
+    newNode->next = next;
+    return newNode;
+}
+
+void destroyCorners(Corner* node) {
+    Corner* next = node->next;
+    free(node);
+    while(next != NULL) {
+       node = next;
+       next = node->next;
+       free(node);
     }
 }
