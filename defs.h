@@ -3,7 +3,7 @@
 #define i64 unsigned long long
 
 #define BOARD_SIZE 20
-#define NUM_PIECES 20
+#define NUM_PIECES 21
 #define NUM_PLAYERS 4
 #define NUM_CORNERS 4
 

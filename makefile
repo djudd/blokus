@@ -1,5 +1,5 @@
 objects = main.o board.o cell.o placement.o
-cflags = -c -std=c99
+cflags = -c -std=c99 -ggdb
 
 blokus : ${objects}
 	gcc -o blokus ${objects}
