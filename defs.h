@@ -1,4 +1,4 @@
-#define i8 char
+#define i8 signed char
 #define i32 unsigned int
 #define i64 unsigned long long
 
@@ -19,8 +19,6 @@ typedef struct cell {
 
 Cell* addCell(i8 x, i8 y, Cell* next);
 
-void destroyCells(Cell* cell);
-
 typedef struct corner {
     i8 x, y;
     i8 corner;
@@ -28,9 +26,10 @@ typedef struct corner {
     struct corner * next;
 } Corner;
 
-Corner* addCorner(i8 x, i8 y, i8 corner, Corner* next);
+Corner* addCorner(i8 x, i8 y, i8 corner, i64 bitmap, Corner* next);
 
-void destroyCorners(Corner* cell);
+void initCornerStorage();
+void destroyCorners();
 
 typedef struct placement {
     Cell* cells;

@@ -11,32 +11,30 @@ Cell* addCell(i8 x, i8 y, Cell* next) {
     return newNode;
 }
 
-void destroyCells(Cell* node) {
-    Cell* next = node->next;
-    free(node);
-    while(next != NULL) {
-       node = next;
-       next = node->next;
-       free(node);
-    }
+// definitely not thread-safe
+Corner* corners;
+Corner* nextCorner;
+
+void initCornerStorage() {
+    corners = malloc(BOARD_SIZE*BOARD_SIZE*sizeof(Corner));
 }
 
-// TODO optimize malloc for tiny-object case?
-Corner* addCorner(i8 x, i8 y, i8 corner, Corner* next) {
-    Corner* newNode = malloc(sizeof(Corner));
+Corner* newCorner() {
+    Corner* thisCorner = nextCorner;
+    nextCorner += sizeof(Corner);
+    return thisCorner;
+}
+
+void destroyCorners() {
+    nextCorner = corners;
+}
+
+Corner* addCorner(i8 x, i8 y, i8 corner, i64 bitmap, Corner* next) {
+    Corner* newNode = newCorner();
     newNode->x = x;
     newNode->y = y;
     newNode->corner = corner;
+    newNode->bitmap = bitmap;
     newNode->next = next;
     return newNode;
-}
-
-void destroyCorners(Corner* node) {
-    Corner* next = node->next;
-    free(node);
-    while(next != NULL) {
-       node = next;
-       next = node->next;
-       free(node);
-    }
 }

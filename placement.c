@@ -58,6 +58,7 @@ void destroyPlacements(Placement* node) {
     }
 }
 
+// TODO Don't need to check the 0,0 cells
 void generatePlacements() {
     placements = malloc(NUM_PIECES*sizeof(Placement**));
 

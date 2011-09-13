@@ -26,6 +26,7 @@ i64 pow5(i8 n) {
         case 17: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
         case 18: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
         case 19: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
+        default: return -1; // should never occur
     }
 }
 
@@ -88,21 +89,79 @@ bool touchesSide(i64* board, i8 player, i8 x, i8 y) {
     return false;
 }
 
+bool valid(i64* board, i8 player, i8 x, i8 y) {
+    return !hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y);
+}
+
+#define ADD_BIT_UL(i,j) if (valid(board, player, x+i, y+j)) result &= bit(i,j);
+
+i64 calcBitmap(i8 x, i8 y, i8 corner, i64* board, i8 player) {
+    i64 result = 0;
+    switch (corner) {
+        case UPPER_LEFT:
+            ;
+            ADD_BIT_UL(1,-3);
+            ADD_BIT_UL(0,-2);
+            ADD_BIT_UL(1,-2);
+            ADD_BIT_UL(2,-2);
+            ADD_BIT_UL(1,-1);
+            ADD_BIT_UL(2,-1);
+            ADD_BIT_UL(3,-1);
+            ADD_BIT_UL(-2,0);
+            ADD_BIT_UL(1,0);
+            ADD_BIT_UL(2,0);
+            ADD_BIT_UL(3,0);
+            ADD_BIT_UL(4,0);
+            ADD_BIT_UL(-3,1);
+            ADD_BIT_UL(-2,1);
+            ADD_BIT_UL(-1,1);
+            ADD_BIT_UL(0,1);
+            ADD_BIT_UL(1,1);
+            ADD_BIT_UL(2,1);
+            ADD_BIT_UL(3,1);
+            ADD_BIT_UL(-2,2);
+            ADD_BIT_UL(-1,2);
+            ADD_BIT_UL(0,2);
+            ADD_BIT_UL(1,2);
+            ADD_BIT_UL(2,2);
+            ADD_BIT_UL(-1,3);
+            ADD_BIT_UL(0,3);
+            ADD_BIT_UL(1,3);
+            ADD_BIT_UL(0,4);
+            return result;
+        case UPPER_RIGHT:
+            ;
+            return result;
+        case LOWER_LEFT:
+            ;
+            return result;
+        case LOWER_RIGHT:
+            ;
+            return result;
+        default: return -1; // should never happen
+    }
+}
+
+Corner* _addCorner(i8 x, i8 y, i8 corner, i64* board, i8 player, Corner* next) {
+    i64 bitmap = calcBitmap(x, y, corner, board, player);
+    return addCorner(x, y, corner, bitmap, next);
+}
+
 Corner* availableCorners(i64* board, i8 player, i8 turn) {
     switch (turn) {
-        case 0: return addCorner(0,0,UPPER_LEFT,NULL);
-        case 1: return addCorner(BOARD_SIZE-1,0,UPPER_RIGHT,NULL);
-        case 2: return addCorner(BOARD_SIZE-1,BOARD_SIZE-1,LOWER_LEFT,NULL);
-        case 3: return addCorner(0,BOARD_SIZE-1,LOWER_RIGHT,NULL);
+        case 0: return _addCorner(0,0,UPPER_LEFT,board,player,NULL);
+        case 1: return _addCorner(BOARD_SIZE-1,0,UPPER_RIGHT,board,player,NULL);
+        case 2: return _addCorner(BOARD_SIZE-1,BOARD_SIZE-1,LOWER_LEFT,board,player,NULL);
+        case 3: return _addCorner(0,BOARD_SIZE-1,LOWER_RIGHT,board,player,NULL);
         default:
             ; // http://old.nabble.com/-Bug-c-37231---New:-GCC-does-not-compile-code-with-label-statements-that-are-followed-by-a-declaration-td19140837.html
             Corner* cell = NULL;
             for (i8 x=0; x<BOARD_SIZE; x++) {
                 for (i8 y=0; y<BOARD_SIZE; y++) {
-                    if (!hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y)) {
-                        signed char corner = touchesCorner(board, player, x, y);
+                    if (valid(board, player, x, y)) {
+                        i8 corner = touchesCorner(board, player, x, y);
                         if (corner >= 0) {
-                            cell = addCorner(x, y, corner, cell);
+                            cell = _addCorner(x, y, corner, board, player, cell);
                         }
                     }
                 }

@@ -5,6 +5,7 @@
 
 void init() {
     generatePlacements();
+    initCornerStorage();
 }
 
 int main(void) {
