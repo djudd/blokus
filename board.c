@@ -49,6 +49,7 @@ bool hasAnyOwner(i64* board, i8 x, i8 y) {
 }
 
 void assign(i64* board, i8 player, Corner* origin, Cell* cell) {
+    setOwner(board, player, origin->x, origin->y);
     while (cell != NULL) {
         setOwner(board, player, cell->x + origin->x, cell->y + origin->y);
         cell = cell->next;
@@ -89,11 +90,18 @@ bool touchesSide(i64* board, i8 player, i8 x, i8 y) {
     return false;
 }
 
-bool valid(i64* board, i8 player, i8 x, i8 y) {
-    return !hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y);
+bool onBoard(i8 x, i8 y) {
+    return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
 }
 
-#define ADD_BIT_UL(i,j) if (valid(board, player, x+i, y+j)) result &= bit(i,j);
+bool valid(i64* board, i8 player, i8 x, i8 y) {
+    return onBoard(x, y) && !hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y);
+}
+
+#define ADD_BIT_UL(i,j) if (valid(board, player, x+i, y+j)) result |= bit(i,j);
+#define ADD_BIT_UR(i,j) if (valid(board, player, x-(i), y+j)) result |= bit(-(i),j);
+#define ADD_BIT_LL(i,j) if (valid(board, player, x+i, y-(j))) result |= bit(i,-(j));
+#define ADD_BIT_LR(i,j) if (valid(board, player, x-(i), y-(j))) result |= bit(-(i),-(j));
 
 i64 calcBitmap(i8 x, i8 y, i8 corner, i64* board, i8 player) {
     i64 result = 0;
@@ -131,12 +139,96 @@ i64 calcBitmap(i8 x, i8 y, i8 corner, i64* board, i8 player) {
             return result;
         case UPPER_RIGHT:
             ;
+            ADD_BIT_UR(1,-3);
+            ADD_BIT_UR(0,-2);
+            ADD_BIT_UR(1,-2);
+            ADD_BIT_UR(2,-2);
+            ADD_BIT_UR(1,-1);
+            ADD_BIT_UR(2,-1);
+            ADD_BIT_UR(3,-1);
+            ADD_BIT_UR(-2,0);
+            ADD_BIT_UR(1,0);
+            ADD_BIT_UR(2,0);
+            ADD_BIT_UR(3,0);
+            ADD_BIT_UR(4,0);
+            ADD_BIT_UR(-3,1);
+            ADD_BIT_UR(-2,1);
+            ADD_BIT_UR(-1,1);
+            ADD_BIT_UR(0,1);
+            ADD_BIT_UR(1,1);
+            ADD_BIT_UR(2,1);
+            ADD_BIT_UR(3,1);
+            ADD_BIT_UR(-2,2);
+            ADD_BIT_UR(-1,2);
+            ADD_BIT_UR(0,2);
+            ADD_BIT_UR(1,2);
+            ADD_BIT_UR(2,2);
+            ADD_BIT_UR(-1,3);
+            ADD_BIT_UR(0,3);
+            ADD_BIT_UR(1,3);
+            ADD_BIT_UR(0,4);
             return result;
         case LOWER_LEFT:
             ;
+            ADD_BIT_LL(1,-3);
+            ADD_BIT_LL(0,-2);
+            ADD_BIT_LL(1,-2);
+            ADD_BIT_LL(2,-2);
+            ADD_BIT_LL(1,-1);
+            ADD_BIT_LL(2,-1);
+            ADD_BIT_LL(3,-1);
+            ADD_BIT_LL(-2,0);
+            ADD_BIT_LL(1,0);
+            ADD_BIT_LL(2,0);
+            ADD_BIT_LL(3,0);
+            ADD_BIT_LL(4,0);
+            ADD_BIT_LL(-3,1);
+            ADD_BIT_LL(-2,1);
+            ADD_BIT_LL(-1,1);
+            ADD_BIT_LL(0,1);
+            ADD_BIT_LL(1,1);
+            ADD_BIT_LL(2,1);
+            ADD_BIT_LL(3,1);
+            ADD_BIT_LL(-2,2);
+            ADD_BIT_LL(-1,2);
+            ADD_BIT_LL(0,2);
+            ADD_BIT_LL(1,2);
+            ADD_BIT_LL(2,2);
+            ADD_BIT_LL(-1,3);
+            ADD_BIT_LL(0,3);
+            ADD_BIT_LL(1,3);
+            ADD_BIT_LL(0,4);
             return result;
         case LOWER_RIGHT:
             ;
+            ADD_BIT_LR(1,-3);
+            ADD_BIT_LR(0,-2);
+            ADD_BIT_LR(1,-2);
+            ADD_BIT_LR(2,-2);
+            ADD_BIT_LR(1,-1);
+            ADD_BIT_LR(2,-1);
+            ADD_BIT_LR(3,-1);
+            ADD_BIT_LR(-2,0);
+            ADD_BIT_LR(1,0);
+            ADD_BIT_LR(2,0);
+            ADD_BIT_LR(3,0);
+            ADD_BIT_LR(4,0);
+            ADD_BIT_LR(-3,1);
+            ADD_BIT_LR(-2,1);
+            ADD_BIT_LR(-1,1);
+            ADD_BIT_LR(0,1);
+            ADD_BIT_LR(1,1);
+            ADD_BIT_LR(2,1);
+            ADD_BIT_LR(3,1);
+            ADD_BIT_LR(-2,2);
+            ADD_BIT_LR(-1,2);
+            ADD_BIT_LR(0,2);
+            ADD_BIT_LR(1,2);
+            ADD_BIT_LR(2,2);
+            ADD_BIT_LR(-1,3);
+            ADD_BIT_LR(0,3);
+            ADD_BIT_LR(1,3);
+            ADD_BIT_LR(0,4);
             return result;
         default: return -1; // should never happen
     }
@@ -187,14 +279,28 @@ i64* empty() {
     return board;
 }
 
+GameState* newGame() {
+    GameState* newNode = malloc(sizeof(GameState));
+    newNode->turn = 0;
+
+    newNode->pieces = malloc(NUM_PLAYERS*sizeof(i32));
+    for (int i=0; i<NUM_PLAYERS; i++) (newNode->pieces)[i] = 0;
+    for (int i=0; i<NUM_PLAYERS; i++) for (int j=0; j<NUM_PIECES; j++) (newNode->pieces)[i] |= (1 << j);
+
+    newNode->board = empty();
+    newNode->next = NULL;
+
+    return newNode;
+}
+
 GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell* placement, GameState* next) {
     GameState* newNode = malloc(sizeof(GameState));
 
     newNode->turn = parent->turn + 1;
 
     // TODO cleanup and optimize - separate function, share malloc (one per new GameState)?
-    i32* pieces = malloc(4*sizeof(i32));
-    for (int i=0; i<4; i++) pieces[i] = parent->pieces[i];
+    i32* pieces = malloc(NUM_PLAYERS*sizeof(i32));
+    for (int i=0; i<NUM_PLAYERS; i++) pieces[i] = parent->pieces[i];
     pieces[player-1] = pieces[player-1] ^ (1 << piece);
     newNode->pieces = pieces;
 
@@ -220,7 +326,7 @@ GameState* children(GameState* state) {
                 Placement* placement = placements[piece][corner->corner];
                 while (placement != NULL) {
                     if ((placement->bitmap & corner->bitmap) == placement->bitmap) {
-                        addChild(state, player, piece, corner, placement->cells, child);
+                        child = addChild(state, player, piece, corner, placement->cells, child);
                     }
                     placement = placement->next;
                 }

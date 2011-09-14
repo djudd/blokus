@@ -17,6 +17,7 @@ Corner* nextCorner;
 
 void initCornerStorage() {
     corners = malloc(BOARD_SIZE*BOARD_SIZE*sizeof(Corner));
+    nextCorner = corners;
 }
 
 Corner* newCorner() {

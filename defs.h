@@ -50,3 +50,7 @@ typedef struct state {
     i32* pieces;
     struct state * next;
 } GameState;
+
+GameState* newGame();
+
+GameState* children(GameState* state);
