@@ -1,9 +1,11 @@
-objects = main.o board.o cell.o placement.o
+objects = main.o board.o cell.o placement.o piece.o
 cflags = -c -std=c99 -ggdb -Wall
 
 blokus : ${objects}
 	gcc -o blokus ${objects}
 
+piece.o: piece.c defs.h
+	gcc ${cflags} piece.c
 placement.o : placement.c defs.h
 	gcc ${cflags} placement.c
 main.o : main.c defs.h

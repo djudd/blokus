@@ -264,7 +264,7 @@ Corner* availableCorners(i64* board, i8 player, i8 turn) {
 
 // TODO optimize - better memcpy implementation? Combine malloc with GameState's?
 i64* afterMove(i64* board, i8 player, Corner* origin, Cell* placement) {
-    i64* child = (i64*) malloc(BOARD_SIZE * sizeof(i64));
+    i64* child = malloc(BOARD_SIZE * sizeof(i64));
     for (i8 i=0; i<BOARD_SIZE; i++)
         child[i] = board[i];
 //    memcpy(child, board, BOARD_SIZE);
@@ -273,10 +273,31 @@ i64* afterMove(i64* board, i8 player, Corner* origin, Cell* placement) {
 }
 
 i64* empty() {
-    i64* board = (i64*) malloc(BOARD_SIZE * sizeof(i64));
+    i64* board = malloc(BOARD_SIZE * sizeof(i64));
     for (i8 i=0; i<BOARD_SIZE; i++)
         board[i] = 0;
     return board;
+}
+
+char* toString(i64* board) {
+    char* result = malloc(BOARD_SIZE*BOARD_SIZE*2+1);
+    int idx = 0;
+    for (int i=0; i<BOARD_SIZE; i++) {
+        for (int j=0; j<BOARD_SIZE; j++) {
+            i8 cellOwner = owner(board, i, j);
+            if (cellOwner == 0)
+                result[idx++] = '.';
+            else
+                result[idx++] = (char) cellOwner;
+
+            if (j < BOARD_SIZE-1)
+                result[idx++] = ' ';
+            else
+                result[idx++] = '\n';
+        }
+    }
+    result[idx++] = '\0';
+    return result;
 }
 
 GameState* newGame() {
@@ -291,6 +312,16 @@ GameState* newGame() {
     newNode->next = NULL;
 
     return newNode;
+}
+
+void destroyState(GameState* state) {
+    if (state == NULL)
+        return;
+
+    free(state->pieces);
+    free(state->board);
+    destroyState(state->next);
+    free(state);
 }
 
 GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell* placement, GameState* next) {

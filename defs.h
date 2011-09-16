@@ -41,7 +41,13 @@ Placement*** placements;
 
 void generatePlacements();
 
+i8* pieceSizes;
+float totalPieceSize;
+void setPieceSizes();
+
 i64 bit(i8 x, i8 y);
+
+char* toString(i64* board);
 
 // TODO this probably shouldn't have pointers, it should have a field per array value and we should use pointer arithmetic
 typedef struct state {
@@ -52,5 +58,6 @@ typedef struct state {
 } GameState;
 
 GameState* newGame();
+void destroyState(GameState* state);
 
 GameState* children(GameState* state);
