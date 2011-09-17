@@ -315,17 +315,23 @@ GameState* newGame() {
     return newNode;
 }
 
-void destroy(GameState* state) {
+void _destroy(GameState* state, bool first) {
     if (state == NULL)
         return;
 
     free(state->pieces);
-//    free(state->scores);
     free(state->board);
 
-    destroy(state->next);
+    if (!first) // this is tricky; scores arrays are re-used, but at the time we're calling destroy, that will only be true at the head of a list of states
+        free(state->scores);
+
+    _destroy(state->next, false);
 
     free(state);
+}
+
+void destroy(GameState* state) {
+    _destroy(state, true);
 }
 
 GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell* placement, GameState* next) {

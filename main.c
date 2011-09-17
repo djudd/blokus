@@ -173,5 +173,5 @@ GameState* iterativeDeepeningSearch(GameState* node, int maxDepth) {
 
 int main(void) {
     init();
-    iterativeDeepeningSearch(newGame(), 3);
+    iterativeDeepeningSearch(newGame(), 4);
 }
