@@ -54,10 +54,11 @@ typedef struct state {
     i8 turn;
     i64* board;
     i32* pieces;
+    float* scores;
     struct state * next;
 } GameState;
 
 GameState* newGame();
-void destroyState(GameState* state);
+void destroy(GameState* state);
 
 GameState* children(GameState* state);

@@ -20,93 +20,26 @@ void printInitialMoves() {
     }
 }
 
-/*
-void nPlies(int n) {
-    int nodesExplored = 0;
-
-    GameState* current = newGame();
-    GameState* firstChild = NULL;
-    GameState* lastChild = NULL;
-
-    for (int i=0; i<n+1; i++) {
-        while (current != NULL) {
-            nodesExplored++;
-            if (nodesExplored % 10000 == 0)
-                printf("%s\n", toString(current->board));
-
-            GameState* currentChildren = children(current);
-
-            if (firstChild == NULL)
-                firstChild = currentChildren;
-
-            if (lastChild == NULL)
-                lastChild = currentChildren;
-            else
-                lastChild->next = currentChildren;
-
-            while (lastChild->next != NULL)
-                lastChild = lastChild->next;
-
-            current = current->next;
-        }
-
-        current = firstChild;
-        firstChild = NULL;
-        lastChild = NULL;
-    }
-
-    printf("Explored %d nodes through ply %d\n", nodesExplored, n);
-}*/
-
 int nodesSearched = 0;
 int nodesPruned = 0;
 
-typedef struct node {
-    GameState* state;
-    float* scores;
-    struct node* next;
-} GameNode;
-
-GameNode* makeNode(GameState* state, float* scores, GameNode* next) {
-    GameNode* node = malloc(sizeof(GameNode));
-    node->state = state;
-    node->scores = scores;
-    node->next = next;
-    return node;
-}
-
-void destroy(GameNode* node) {
-    if (node == NULL)
-        return;
-
-    destroy(node->next);
-
-    free(node->state->board);
-    free(node->state->pieces);
-    // we don't free node->state->next because we'll do that when freeing another node
-    free(node->state);
-
-    free(node->scores);
-    free(node);
-}
-
-bool scoreLessFor(GameNode* a, GameNode* b, i8 player) {
+bool scoreLessFor(GameState* a, GameState* b, i8 player) {
     // TODO: Secondary comparison based on opponents' scores
     return a->scores[player] < b->scores[player];
 }
 
-GameNode* sort(GameNode* node) {
-    i8 player = node->state->turn % 4; // here 0-indexed, not 1-indexed
+GameState* sort(GameState* node) {
+    i8 player = node->turn % 4; // here 0-indexed, not 1-indexed
 
-    GameNode* pivot = node;
-    GameNode* less = NULL;
+    GameState* pivot = node;
+    GameState* less = NULL;
     int lessCount = 0;
-    GameNode* more = NULL;
+    GameState* more = NULL;
     int moreCount = 0;
 
     node = node->next;
     while (node != NULL) {
-        GameNode* next = node->next;
+        GameState* next = node->next;
         if (scoreLessFor(pivot, node, player)) {
             node->next = less;
             less = node;
@@ -127,7 +60,7 @@ GameNode* sort(GameNode* node) {
 
     pivot->next = less;
 
-    GameNode* smallestMore = more;
+    GameState* smallestMore = more;
     while (smallestMore != NULL && smallestMore->next != NULL)
         smallestMore = smallestMore->next;
     if (smallestMore != NULL) {
@@ -192,55 +125,53 @@ float* heuristicScores(GameState* state) {
     return scores;
 }
 
-GameNode* search(GameState* node, GameState* child, int depth) {
-    if (child == NULL) {
-        return makeNode(NULL, terminalScores(node), NULL);
-    }
-
+GameState* search(GameState* node, int depth) {
     if (depth <= 0) {
-        return makeNode(NULL, heuristicScores(node), NULL);
+        node->scores = heuristicScores(node);
+        return node;
     }
 
-    GameNode* scoredChild = NULL;
+    GameState* child = children(node);
+
+    if (child == NULL) {
+        node->scores = terminalScores(node);
+        return node;
+    }
+
+    GameState* current = child;
     do {
         nodesSearched++; // for debugging
 
-        GameNode* grandChild = search(child, children(child), depth-1);
-        destroy(grandChild->next); // only care about head
+        GameState* grandChild = search(current, depth-1);
+        current->scores = grandChild->scores;
+        if (grandChild != current) // if we didn't short circuit, but actually searched a new set of children
+            destroy(grandChild);
 
-        scoredChild = makeNode(
-            child,
-            grandChild->scores,
-            scoredChild
-        );
+        current = current->next;
+    } while (current != NULL);
 
-        child = child->next;
-    } while (child != NULL);
-
-    return sort(scoredChild);
+    return sort(child);
 }
 
 GameState* iterativeDeepeningSearch(GameState* node, int maxDepth) {
-    GameState* child = children(node);
     int depth = 1;
 
     while (depth <= maxDepth) {
         // TODO: Use sorted order
-        child = search(
+        node = search(
             node,
-            child,
             depth
-        )->state;
+        );
 
-        printf("%s\n", toString(child->board));
+        printf("%s\n", toString(node->board));
 
         depth++;
     }
 
-    return child; // care only about head
+    return node; // care only about head
 }
 
 int main(void) {
     init();
-    iterativeDeepeningSearch(newGame(), 2);
+    iterativeDeepeningSearch(newGame(), 3);
 }

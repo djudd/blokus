@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "defs.h"
 
 i64 pow5(i8 n) {
@@ -31,9 +32,9 @@ i64 pow5(i8 n) {
 }
 
 void setOwner(i64* board, i8 player, i8 x, i8 y) {
-//    i64 old = board[x];
+    assert(x >= 0 && x < BOARD_SIZE);
+    assert(y >= 0 && y < BOARD_SIZE);
     board[x] = board[x] + (pow5(y) * player);
-//    printf("setting (%d, %d) owner to %d; row was %llu, now %llu\n", x, y, player, old, board[x]);
 }
 
 i8 owner(i64* board, i8 x, i8 y) {
@@ -314,14 +315,16 @@ GameState* newGame() {
     return newNode;
 }
 
-void destroyState(GameState* state) {
+void destroy(GameState* state) {
     if (state == NULL)
         return;
 
-    destroyState(state->next);
-
     free(state->pieces);
+//    free(state->scores);
     free(state->board);
+
+    destroy(state->next);
+
     free(state);
 }
 
@@ -357,7 +360,8 @@ GameState* children(GameState* state) {
             while (corner != NULL) {
                 Placement* placement = placements[piece][corner->corner];
                 while (placement != NULL) {
-                    if ((placement->bitmap & corner->bitmap) == placement->bitmap) {
+                    bool placementValidForCorner = (placement->bitmap & corner->bitmap) == placement->bitmap;
+                    if (placementValidForCorner) {
                         child = addChild(state, player, piece, corner, placement->cells, child);
                     }
                     placement = placement->next;
