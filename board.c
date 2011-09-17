@@ -318,9 +318,10 @@ void destroyState(GameState* state) {
     if (state == NULL)
         return;
 
+    destroyState(state->next);
+
     free(state->pieces);
     free(state->board);
-    destroyState(state->next);
     free(state);
 }
 

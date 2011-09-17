@@ -81,8 +81,12 @@ void destroy(GameNode* node) {
 
     destroy(node->next);
 
+    free(node->state->board);
+    free(node->state->pieces);
+    // we don't free node->state->next because we'll do that when freeing another node
+    free(node->state);
+
     free(node->scores);
-    destroyState(node->state);
     free(node);
 }
 
@@ -92,7 +96,7 @@ bool scoreLessFor(GameNode* a, GameNode* b, i8 player) {
 }
 
 GameNode* sort(GameNode* node) {
-    i8 player = (node->state->turn % 4) + 1;
+    i8 player = node->state->turn % 4; // here 0-indexed, not 1-indexed
 
     GameNode* pivot = node;
     GameNode* less = NULL;
@@ -136,7 +140,7 @@ GameNode* sort(GameNode* node) {
 }
 
 float* terminalScores(GameState* state) {
-    float* scores = malloc(NUM_PLAYERS*sizeof(i8));
+    float* scores = malloc(NUM_PLAYERS*sizeof(float));
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = totalPieceSize;
         i32 pieces = state->pieces[p];
@@ -166,7 +170,7 @@ float* terminalScores(GameState* state) {
 }
 
 float* heuristicScores(GameState* state) {
-    float* scores = malloc(NUM_PLAYERS*sizeof(i8));
+    float* scores = malloc(NUM_PLAYERS*sizeof(float));
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = totalPieceSize;
         i32 pieces = state->pieces[p];
@@ -238,5 +242,5 @@ GameState* iterativeDeepeningSearch(GameState* node, int maxDepth) {
 
 int main(void) {
     init();
-    iterativeDeepeningSearch(newGame(), 1);
+    iterativeDeepeningSearch(newGame(), 2);
 }
