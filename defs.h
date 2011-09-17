@@ -55,6 +55,7 @@ typedef struct state {
     i64* board;
     i32* pieces;
     float* scores;
+    struct state * parent;
     struct state * next;
 } GameState;
 

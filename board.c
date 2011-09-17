@@ -254,6 +254,7 @@ Corner* availableCorners(i64* board, i8 player, i8 turn) {
                     if (valid(board, player, x, y)) {
                         i8 corner = touchesCorner(board, player, x, y);
                         if (corner >= 0) {
+//                            printf("available corner for %d: (%d, %d)\n", player, x, y);
                             cell = _addCorner(x, y, corner, board, player, cell);
                         }
                     }
@@ -311,6 +312,7 @@ GameState* newGame() {
 
     newNode->board = empty();
     newNode->next = NULL;
+    newNode->parent = NULL;
 
     return newNode;
 }
@@ -347,6 +349,7 @@ GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell
 
     newNode->board = afterMove(parent->board, player, origin, placement);
 
+    newNode->parent = parent;
     newNode->next = next;
 
     return newNode;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <assert.h>
 #include "defs.h"
 
 void init() {
@@ -22,6 +23,7 @@ void printInitialMoves() {
 
 int nodesSearched = 0;
 int nodesPruned = 0;
+int maxTurnSearched = 0;
 
 bool scoreLessFor(GameState* a, GameState* b, i8 player) {
     // TODO: Secondary comparison based on opponents' scores
@@ -103,6 +105,12 @@ float* terminalScores(GameState* state) {
 }
 
 float* heuristicScores(GameState* state) {
+    nodesSearched++; // for debugging
+//    if (nodesSearched % 100000 == 0) {
+//        printf("%s\n", toString(state->board));
+//        printf("Nodes searched: %d\n", nodesSearched);
+//    }
+
     float* scores = malloc(NUM_PLAYERS*sizeof(float));
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = totalPieceSize;
@@ -126,6 +134,9 @@ float* heuristicScores(GameState* state) {
 }
 
 GameState* search(GameState* node, int depth) {
+    if (maxTurnSearched < node->turn)
+        maxTurnSearched = node->turn;
+
     if (depth <= 0) {
         node->scores = heuristicScores(node);
         return node;
@@ -140,8 +151,6 @@ GameState* search(GameState* node, int depth) {
 
     GameState* current = child;
     do {
-        nodesSearched++; // for debugging
-
         GameState* grandChild = search(current, depth-1);
         current->scores = grandChild->scores;
         if (grandChild != current) // if we didn't short circuit, but actually searched a new set of children
@@ -164,7 +173,12 @@ GameState* iterativeDeepeningSearch(GameState* node, int maxDepth) {
         );
 
         printf("%s\n", toString(node->board));
+        printf("Nodes searched: %d\n", nodesSearched);
+        printf("Max turn searched: %d\n", maxTurnSearched);
+        nodesSearched = 0;
+        maxTurnSearched = 0;
 
+        node = node->parent;
         depth++;
     }
 
