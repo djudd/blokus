@@ -27,7 +27,7 @@ i64 pow5(i8 n) {
         case 17: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
         case 18: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
         case 19: return 5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu*5llu;
-        default: return -1; // should never occur
+        default: assert(0);
     }
 }
 
@@ -99,9 +99,9 @@ bool valid(i64* board, i8 player, i8 x, i8 y) {
     return onBoard(x, y) && !hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y);
 }
 
-#define ADD_BIT_UL(i,j) if (valid(board, player, x+i, y+j)) result |= bit(i,j);
-#define ADD_BIT_UR(i,j) if (valid(board, player, x-(i), y+j)) result |= bit(-(i),j);
-#define ADD_BIT_LL(i,j) if (valid(board, player, x+i, y-(j))) result |= bit(i,-(j));
+#define ADD_BIT_UL(i,j) if (valid(board, player, x+(i), y+(j))) result |= bit((i),(j));
+#define ADD_BIT_UR(i,j) if (valid(board, player, x-(i), y+(j))) result |= bit(-(i),(j));
+#define ADD_BIT_LL(i,j) if (valid(board, player, x+(i), y-(j))) result |= bit((i),-(j));
 #define ADD_BIT_LR(i,j) if (valid(board, player, x-(i), y-(j))) result |= bit(-(i),-(j));
 
 i64 calcBitmap(i8 x, i8 y, i8 corner, i64* board, i8 player) {
@@ -307,7 +307,7 @@ GameState* newGame() {
 
     newNode->pieces = malloc(NUM_PLAYERS*sizeof(i32));
     for (int i=0; i<NUM_PLAYERS; i++) (newNode->pieces)[i] = 0;
-    for (int i=0; i<NUM_PLAYERS; i++) for (int j=0; j<NUM_PIECES; j++) (newNode->pieces)[i] |= (1 << j);
+    for (int i=0; i<NUM_PLAYERS; i++) for (int j=0; j<NUM_PIECES; j++) (newNode->pieces)[i] |= (((i32) 1) << j);
 
     newNode->board = empty();
     newNode->next = NULL;
@@ -336,7 +336,7 @@ GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell
     // TODO cleanup and optimize - separate function, share malloc (one per new GameState)?
     i32* pieces = malloc(NUM_PLAYERS*sizeof(i32));
     for (int i=0; i<NUM_PLAYERS; i++) pieces[i] = parent->pieces[i];
-    pieces[player-1] = pieces[player-1] ^ (1 << piece);
+    pieces[player-1] = pieces[player-1] ^ (((i32) 1) << piece);
     newNode->pieces = pieces;
 
     newNode->board = afterMove(parent->board, player, origin, placement);
@@ -355,7 +355,7 @@ GameState* children(GameState* state) {
     GameState* child = NULL;
 
     for (i8 piece=0; piece<NUM_PIECES; piece++) {
-        if (pieces & (1 << piece)) {
+        if (pieces & (((i32) 1) << piece)) {
             Corner* corner = corners;
             while (corner != NULL) {
                 Placement* placement = placements[piece][corner->corner];

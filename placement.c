@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "defs.h"
 
 i8 index(i8 x, i8 y) {
@@ -23,12 +24,12 @@ i8 index(i8 x, i8 y) {
         case 4:
             return 40;
         default:
-            return -1; // should never happen
+            assert(0);
     }
 }
 
 i64 bit(i8 x, i8 y) {
-    return 1 << index(x, y);
+    return ((i64) 1) << index(x, y);
 }
 
 i64 toBitmap(Cell* cell) {

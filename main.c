@@ -78,7 +78,7 @@ float* terminalScores(GameState* state) {
         scores[p] = totalPieceSize;
         i32 pieces = state->pieces[p];
         for (i8 i=0; i<NUM_PIECES; i++) {
-            if ((pieces & (1 << i)) > 0)
+            if ((pieces & (((i32) 1) << i)) > 0)
                 scores[p] -= pieceSizes[i];
         }
     }
@@ -108,7 +108,7 @@ float* heuristicScores(GameState* state) {
         scores[p] = totalPieceSize;
         i32 pieces = state->pieces[p];
         for (i8 i=0; i<NUM_PIECES; i++) {
-            if ((pieces & (1 << i)) > 0)
+            if ((pieces & (((i32) 1) << i)) > 0)
                 scores[p] -= pieceSizes[i];
         }
     }
