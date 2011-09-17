@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "defs.h"
 
-i8 index(i8 x, i8 y) {
+i8 cellIdx(i8 x, i8 y) {
     switch (x) {
         case -4:
             return 0; // y = 0
@@ -29,7 +29,7 @@ i8 index(i8 x, i8 y) {
 }
 
 i64 bit(i8 x, i8 y) {
-    return ((i64) 1) << index(x, y);
+    return ((i64) 1) << cellIdx(x, y);
 }
 
 i64 toBitmap(Cell* cell) {

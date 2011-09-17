@@ -1,19 +1,21 @@
 objects = main.o board.o cell.o placement.o piece.o
+#cc = gcc
+cc = clang
 cflags = -c -std=c99 -ggdb -Wall -O0
 #cflags = -c -std=c99 -Wall -O3
 
 blokus : ${objects}
-	gcc -o blokus ${objects}
+	${cc} -o blokus ${objects}
 
 piece.o: piece.c defs.h
-	gcc ${cflags} piece.c
+	${cc} ${cflags} piece.c
 placement.o : placement.c defs.h
-	gcc ${cflags} placement.c
+	${cc} ${cflags} placement.c
 main.o : main.c defs.h
-	gcc ${cflags} main.c
+	${cc} ${cflags} main.c
 board.o : board.c defs.h
-	gcc ${cflags} board.c
+	${cc} ${cflags} board.c
 cell.o : board.c defs.h
-	gcc ${cflags} cell.c
+	${cc} ${cflags} cell.c
 clean :
 	rm -f blokus ${objects}
