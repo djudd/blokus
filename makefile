@@ -1,11 +1,14 @@
 objects = main.o board.o cell.o placement.o piece.o
-#cc = gcc
-cc = clang
-cflags = -c -std=c99 -ggdb -Wall -O0
-#cflags = -c -std=c99 -Wall -O3
+
+cc = gcc
+#cc = clang
+
+#cflags = -c -std=c99 -ggdb -Wall -O0 # debugging
+cflags = -c -std=c99 -g -pg -Wall -O3 -DNDEBUG # profiling
+#cflags = -c -std=c99 -Wall -O3 -DNDEBUG # production
 
 blokus : ${objects}
-	${cc} -o blokus ${objects}
+	${cc} -o blokus ${objects} -pg # profiling
 
 piece.o: piece.c defs.h
 	${cc} ${cflags} piece.c
