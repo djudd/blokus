@@ -264,22 +264,12 @@ Corner* availableCorners(i64* board, i8 player, i8 turn) {
     }
 }
 
-// TODO optimize - better memcpy implementation? Combine malloc with GameState's?
-i64* afterMove(i64* board, i8 player, Corner* origin, Cell* placement) {
-    i64* child = malloc(BOARD_SIZE * sizeof(i64));
-    for (i8 i=0; i<BOARD_SIZE; i++)
-        child[i] = board[i];
-//    memcpy(child, board, BOARD_SIZE);
-    assign(child, player, origin, placement);
-    return child;
-}
-
-i64* empty() {
-    i64* board = malloc(BOARD_SIZE * sizeof(i64));
-    for (i8 i=0; i<BOARD_SIZE; i++)
-        board[i] = 0;
-    return board;
-}
+//i64* empty() {
+//    i64* board = malloc(BOARD_SIZE * sizeof(i64));
+//    for (i8 i=0; i<BOARD_SIZE; i++)
+//        board[i] = 0;
+//    return board;
+//}
 
 char* toString(i64* board) {
     char* result = malloc(BOARD_SIZE*BOARD_SIZE*2+1);
@@ -311,7 +301,10 @@ GameState* newGame() {
     for (int i=0; i<NUM_PLAYERS; i++) pieces[i] = 0;
     for (int i=0; i<NUM_PLAYERS; i++) for (int j=0; j<NUM_PIECES; j++) pieces[i] |= (((i32) 1) << j);
 
-    newNode->board = empty();
+//    newNode->board = empty();
+    i64* board = &(newNode->board);
+    for (int i=0; i<BOARD_SIZE; i++) board[i] = 0;
+
     newNode->next = NULL;
     newNode->parent = NULL;
 
@@ -323,7 +316,7 @@ void _destroy(GameState* state, bool first) {
         return;
 
 //    free(state->pieces);
-    free(state->board);
+//    free(state->board);
 
     if (!first) // this is tricky; scores arrays are re-used, but at the time we're calling destroy, that will only be true at the head of a list of states
         free(state->scores);
@@ -346,11 +339,14 @@ GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell
 //    i32* pieces = malloc(NUM_PLAYERS*sizeof(i32));
     i32* pPieces = &(parent->pieces);
     i32* nPieces = &(newNode->pieces);
-    for (int i=0; i<NUM_PLAYERS; i++) nPieces[i] = pPieces[i];
+    for (i8 i=0; i<NUM_PLAYERS; i++) nPieces[i] = pPieces[i];
     nPieces[player-1] = nPieces[player-1] ^ (((i32) 1) << piece);
 //    newNode->pieces = pieces;
 
-    newNode->board = afterMove(parent->board, player, origin, placement);
+    i64* pBoard = &(parent->board);
+    i64* nBoard = &(newNode->board);
+    for (i8 i=0; i<BOARD_SIZE; i++) nBoard[i] = pBoard[i]; // TODO (memcpy or equivalent?)
+    assign(nBoard, player, origin, placement);
 
     newNode->parent = parent;
     newNode->next = next;
@@ -362,7 +358,7 @@ GameState* children(GameState* state) {
     i8 player = (state->turn % 4) + 1;
     i32 pieces = (&(state->pieces))[player-1];
 
-    Corner* corners = availableCorners(state->board, player, state->turn);
+    Corner* corners = availableCorners(&(state->board), player, state->turn);
 
     GameState* child = NULL;
 

@@ -16,7 +16,7 @@ void printInitialMoves() {
     GameState* game = newGame();
     GameState* child = children(game);
     while (child != NULL) {
-        printf("%s\n", toString(child->board));
+        printf("%s\n", toString(&(child->board)));
         child = child->next;
     }
 }
@@ -172,7 +172,7 @@ GameState* iterativeDeepeningSearch(GameState* node, int maxDepth) {
             depth
         );
 
-        printf("%s\n", toString(node->board));
+        printf("%s\n", toString(&(node->board)));
         printf("Nodes searched: %d\n", nodesSearched);
         printf("Max turn searched: %d\n", maxTurnSearched);
         nodesSearched = 0;
