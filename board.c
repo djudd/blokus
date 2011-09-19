@@ -306,9 +306,10 @@ GameState* newGame() {
     GameState* newNode = malloc(sizeof(GameState));
     newNode->turn = 0;
 
-    newNode->pieces = malloc(NUM_PLAYERS*sizeof(i32));
-    for (int i=0; i<NUM_PLAYERS; i++) (newNode->pieces)[i] = 0;
-    for (int i=0; i<NUM_PLAYERS; i++) for (int j=0; j<NUM_PIECES; j++) (newNode->pieces)[i] |= (((i32) 1) << j);
+//    newNode->pieces = malloc(NUM_PLAYERS*sizeof(i32));
+    i32* pieces = &(newNode->pieces);
+    for (int i=0; i<NUM_PLAYERS; i++) pieces[i] = 0;
+    for (int i=0; i<NUM_PLAYERS; i++) for (int j=0; j<NUM_PIECES; j++) pieces[i] |= (((i32) 1) << j);
 
     newNode->board = empty();
     newNode->next = NULL;
@@ -321,7 +322,7 @@ void _destroy(GameState* state, bool first) {
     if (state == NULL)
         return;
 
-    free(state->pieces);
+//    free(state->pieces);
     free(state->board);
 
     if (!first) // this is tricky; scores arrays are re-used, but at the time we're calling destroy, that will only be true at the head of a list of states
@@ -342,10 +343,12 @@ GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell
     newNode->turn = parent->turn + 1;
 
     // TODO cleanup and optimize - separate function, share malloc (one per new GameState)?
-    i32* pieces = malloc(NUM_PLAYERS*sizeof(i32));
-    for (int i=0; i<NUM_PLAYERS; i++) pieces[i] = parent->pieces[i];
-    pieces[player-1] = pieces[player-1] ^ (((i32) 1) << piece);
-    newNode->pieces = pieces;
+//    i32* pieces = malloc(NUM_PLAYERS*sizeof(i32));
+    i32* pPieces = &(parent->pieces);
+    i32* nPieces = &(newNode->pieces);
+    for (int i=0; i<NUM_PLAYERS; i++) nPieces[i] = pPieces[i];
+    nPieces[player-1] = nPieces[player-1] ^ (((i32) 1) << piece);
+//    newNode->pieces = pieces;
 
     newNode->board = afterMove(parent->board, player, origin, placement);
 
@@ -357,7 +360,7 @@ GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell
 
 GameState* children(GameState* state) {
     i8 player = (state->turn % 4) + 1;
-    i32 pieces = state->pieces[player-1];
+    i32 pieces = (&(state->pieces))[player-1];
 
     Corner* corners = availableCorners(state->board, player, state->turn);
 

@@ -78,7 +78,7 @@ float* terminalScores(GameState* state) {
     float* scores = malloc(NUM_PLAYERS*sizeof(float));
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = totalPieceSize;
-        i32 pieces = state->pieces[p];
+        i32 pieces = (&(state->pieces))[p];
         for (i8 i=0; i<NUM_PIECES; i++) {
             if ((pieces & (((i32) 1) << i)) > 0)
                 scores[p] -= pieceSizes[i];
@@ -114,7 +114,7 @@ float* heuristicScores(GameState* state) {
     float* scores = malloc(NUM_PLAYERS*sizeof(float));
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = totalPieceSize;
-        i32 pieces = state->pieces[p];
+        i32 pieces = (&(state->pieces))[p];
         for (i8 i=0; i<NUM_PIECES; i++) {
             if ((pieces & (((i32) 1) << i)) > 0)
                 scores[p] -= pieceSizes[i];

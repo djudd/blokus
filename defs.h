@@ -49,11 +49,14 @@ i64 bit(i8 x, i8 y);
 
 char* toString(i64* board);
 
-// TODO this probably shouldn't have pointers, it should have a field per array value and we should use pointer arithmetic
+// TODO this probably shouldn't have pointers for board (& scores?), it should have a field per array value and we should use pointer arithmetic
 typedef struct state {
     i8 turn;
     i64* board;
-    i32* pieces;
+    i32 pieces;
+    i32 pieces_1;
+    i32 pieces_2;
+    i32 pieces_3;
     float* scores;
     struct state * parent;
     struct state * next;
