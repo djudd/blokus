@@ -12,6 +12,10 @@
 #define LOWER_RIGHT 2
 #define UPPER_RIGHT 3
 
+i8* pieceSizes;
+i32 totalPieceSize;
+void setPieceSizes();
+
 typedef struct cell {
     i8 x, y;
     struct cell * next;
@@ -38,18 +42,13 @@ typedef struct placement {
 } Placement;
 
 Placement*** placements;
-
 void generatePlacements();
-
-i8* pieceSizes;
-float totalPieceSize;
-void setPieceSizes();
-
 i64 bit(i8 x, i8 y);
 
+void assign(i64* board, i8 player, Corner* origin, Cell* cell);
+Corner* availableCorners(i64* board, i8 player, i8 turn);
 char* toString(i64* board);
 
-// TODO this probably shouldn't have pointers for board (& scores?), it should have a field per array value and we should use pointer arithmetic
 typedef struct state {
     i8 turn;
     i64 board;
@@ -86,5 +85,6 @@ typedef struct state {
 
 GameState* newGame();
 void destroy(GameState* state);
-
 GameState* children(GameState* state);
+
+GameState* iterativeDeepeningSearch(GameState* node, int maxDepth);

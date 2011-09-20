@@ -1,4 +1,4 @@
-objects = main.o board.o cell.o placement.o piece.o
+objects = main.o board.o cell.o placement.o piece.o gamestate.o heuristicsearch.o
 
 #cc = gcc
 cc = clang
@@ -15,13 +15,17 @@ blokus : ${objects}
 
 piece.o: piece.c defs.h
 	${cc} ${cflags} piece.c
+cell.o : board.c defs.h
+	${cc} ${cflags} cell.c
 placement.o : placement.c defs.h
 	${cc} ${cflags} placement.c
 main.o : main.c defs.h
 	${cc} ${cflags} main.c
 board.o : board.c defs.h
 	${cc} ${cflags} board.c
-cell.o : board.c defs.h
-	${cc} ${cflags} cell.c
+gamestate.o : gamestate.c defs.h
+	${cc} ${cflags} gamestate.c
+heuristicsearch.o : heuristicsearch.c defs.h
+	${cc} ${cflags} heuristicsearch.c
 clean :
 	rm -f blokus ${objects}

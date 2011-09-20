@@ -2,7 +2,7 @@
 #include "defs.h"
 
 i8* pieceSizes;
-float totalPieceSize;
+i32 totalPieceSize;
 
 void setPieceSizes() {
     pieceSizes = malloc(NUM_PIECES*sizeof(i8));
