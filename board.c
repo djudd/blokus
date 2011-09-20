@@ -264,13 +264,6 @@ Corner* availableCorners(i64* board, i8 player, i8 turn) {
     }
 }
 
-//i64* empty() {
-//    i64* board = malloc(BOARD_SIZE * sizeof(i64));
-//    for (i8 i=0; i<BOARD_SIZE; i++)
-//        board[i] = 0;
-//    return board;
-//}
-
 char* toString(i64* board) {
     char* result = malloc(BOARD_SIZE*BOARD_SIZE*2+1);
     int idx = 0;
@@ -296,12 +289,10 @@ GameState* newGame() {
     GameState* newNode = malloc(sizeof(GameState));
     newNode->turn = 0;
 
-//    newNode->pieces = malloc(NUM_PLAYERS*sizeof(i32));
     i32* pieces = &(newNode->pieces);
     for (int i=0; i<NUM_PLAYERS; i++) pieces[i] = 0;
     for (int i=0; i<NUM_PLAYERS; i++) for (int j=0; j<NUM_PIECES; j++) pieces[i] |= (((i32) 1) << j);
 
-//    newNode->board = empty();
     i64* board = &(newNode->board);
     for (int i=0; i<BOARD_SIZE; i++) board[i] = 0;
 
@@ -315,11 +306,8 @@ void _destroy(GameState* state, bool first) {
     if (state == NULL)
         return;
 
-//    free(state->pieces);
-//    free(state->board);
-
-    if (!first) // this is tricky; scores arrays are re-used, but at the time we're calling destroy, that will only be true at the head of a list of states
-        free(state->scores);
+//    if (!first) // this is tricky; scores arrays are re-used, but at the time we're calling destroy, that will only be true at the head of a list of states
+//        free(state->scores);
 
     _destroy(state->next, false);
 

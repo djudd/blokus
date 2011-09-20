@@ -27,7 +27,7 @@ int maxTurnSearched = 0;
 
 bool scoreLessFor(GameState* a, GameState* b, i8 player) {
     // TODO: Secondary comparison based on opponents' scores
-    return a->scores[player] < b->scores[player];
+    return (&(a->scores))[player] < (&(b->scores))[player];
 }
 
 GameState* sort(GameState* node) {
@@ -74,8 +74,17 @@ GameState* sort(GameState* node) {
     }
 }
 
-float* terminalScores(GameState* state) {
-    float* scores = malloc(NUM_PLAYERS*sizeof(float));
+void copyScores(GameState* from, GameState* to) {
+    float* fScores = &(from->scores);
+    float* tScores = &(to->scores);
+    for (i8 i=0; i<NUM_PLAYERS; i++) {
+        tScores[i] = fScores[i];
+    }
+}
+
+void setTerminalScores(GameState* state) {
+    float* scores = &(state->scores);
+
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = totalPieceSize;
         i32 pieces = (&(state->pieces))[p];
@@ -100,18 +109,17 @@ float* terminalScores(GameState* state) {
         else
             scores[p] = 0;
     }
-
-    return scores;
 }
 
-float* heuristicScores(GameState* state) {
+void setHeuristicScores(GameState* state) {
     nodesSearched++; // for debugging
 //    if (nodesSearched % 100000 == 0) {
 //        printf("%s\n", toString(state->board));
 //        printf("Nodes searched: %d\n", nodesSearched);
 //    }
 
-    float* scores = malloc(NUM_PLAYERS*sizeof(float));
+    float* scores = &(state->scores);
+
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = totalPieceSize;
         i32 pieces = (&(state->pieces))[p];
@@ -129,8 +137,6 @@ float* heuristicScores(GameState* state) {
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = scores[p] / totalScore;
     }
-
-    return scores;
 }
 
 GameState* search(GameState* node, int depth) {
@@ -138,21 +144,21 @@ GameState* search(GameState* node, int depth) {
         maxTurnSearched = node->turn;
 
     if (depth <= 0) {
-        node->scores = heuristicScores(node);
+        setHeuristicScores(node);
         return node;
     }
 
     GameState* child = children(node);
 
     if (child == NULL) {
-        node->scores = terminalScores(node);
+        setTerminalScores(node);
         return node;
     }
 
     GameState* current = child;
     do {
         GameState* grandChild = search(current, depth-1);
-        current->scores = grandChild->scores;
+        copyScores(grandChild, current);
         if (grandChild != current) // if we didn't short circuit, but actually searched a new set of children
             destroy(grandChild);
 

@@ -76,7 +76,10 @@ typedef struct state {
     i32 pieces_1;
     i32 pieces_2;
     i32 pieces_3;
-    float* scores;
+    float scores;
+    float scores_1;
+    float scores_2;
+    float scores_3;
     struct state * parent;
     struct state * next;
 } GameState;
