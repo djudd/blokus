@@ -82,18 +82,17 @@ void copyScores(GameState* from, GameState* to) {
     }
 }
 
-void setTerminalScores(GameState* state) {
-    float* scores = &(state->scores);
-
-    for (i8 p=0; p<NUM_PLAYERS; p++) {
-        scores[p] = totalPieceSize;
-        i32 pieces = (&(state->pieces))[p];
-        for (i8 i=0; i<NUM_PIECES; i++) {
-            if ((pieces & (((i32) 1) << i)) > 0)
-                scores[p] -= pieceSizes[i];
-        }
+int countPieceSizes(GameState* state, i8 player) {
+    int result = totalPieceSize;
+    i32 pieces = (&(state->pieces))[player];
+    for (i8 i=0; i<NUM_PIECES; i++) {
+        if ((pieces & (((i32) 1) << i)) > 0)
+            result -= pieceSizes[i];
     }
+    return result;
+}
 
+void normalizeTerminalScores(float* scores) {
     i8 winner = 0;
     float max = 0;
     for (i8 p=0; p<NUM_PLAYERS; p++) {
@@ -109,26 +108,19 @@ void setTerminalScores(GameState* state) {
         else
             scores[p] = 0;
     }
+
+    normalizeTerminalScores(scores);
 }
 
-void setHeuristicScores(GameState* state) {
-    nodesSearched++; // for debugging
-//    if (nodesSearched % 100000 == 0) {
-//        printf("%s\n", toString(state->board));
-//        printf("Nodes searched: %d\n", nodesSearched);
-//    }
-
+void setTerminalScores(GameState* state) {
     float* scores = &(state->scores);
 
     for (i8 p=0; p<NUM_PLAYERS; p++) {
-        scores[p] = totalPieceSize;
-        i32 pieces = (&(state->pieces))[p];
-        for (i8 i=0; i<NUM_PIECES; i++) {
-            if ((pieces & (((i32) 1) << i)) > 0)
-                scores[p] -= pieceSizes[i];
-        }
+        scores[p] = (float) countPieceSizes(state, p);
     }
+}
 
+void normalizeScores(float* scores) {
     float totalScore = 0;
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         totalScore += scores[p];
@@ -137,6 +129,18 @@ void setHeuristicScores(GameState* state) {
     for (i8 p=0; p<NUM_PLAYERS; p++) {
         scores[p] = scores[p] / totalScore;
     }
+}
+
+void setHeuristicScores(GameState* state) {
+    nodesSearched++; // for debugging
+
+    float* scores = &(state->scores);
+
+    for (i8 p=0; p<NUM_PLAYERS; p++) {
+        scores[p] = (float) countPieceSizes(state, p);
+    }
+
+    normalizeScores(scores);
 }
 
 GameState* search(GameState* node, int depth) {

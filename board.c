@@ -254,7 +254,6 @@ Corner* availableCorners(i64* board, i8 player, i8 turn) {
                     if (valid(board, player, x, y)) {
                         i8 corner = touchesCorner(board, player, x, y);
                         if (corner >= 0) {
-//                            printf("available corner for %d: (%d, %d)\n", player, x, y);
                             cell = _addCorner(x, y, corner, board, player, cell);
                         }
                     }
@@ -302,38 +301,27 @@ GameState* newGame() {
     return newNode;
 }
 
-void _destroy(GameState* state, bool first) {
+void destroy(GameState* state) {
     if (state == NULL)
         return;
-
-//    if (!first) // this is tricky; scores arrays are re-used, but at the time we're calling destroy, that will only be true at the head of a list of states
-//        free(state->scores);
-
-    _destroy(state->next, false);
-
+    destroy(state->next);
     free(state);
 }
 
-void destroy(GameState* state) {
-    _destroy(state, true);
-}
-
+// TODO: memcpy (or own similar implementation)?
 GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell* placement, GameState* next) {
     GameState* newNode = malloc(sizeof(GameState));
 
     newNode->turn = parent->turn + 1;
 
-    // TODO cleanup and optimize - separate function, share malloc (one per new GameState)?
-//    i32* pieces = malloc(NUM_PLAYERS*sizeof(i32));
     i32* pPieces = &(parent->pieces);
     i32* nPieces = &(newNode->pieces);
     for (i8 i=0; i<NUM_PLAYERS; i++) nPieces[i] = pPieces[i];
     nPieces[player-1] = nPieces[player-1] ^ (((i32) 1) << piece);
-//    newNode->pieces = pieces;
 
     i64* pBoard = &(parent->board);
     i64* nBoard = &(newNode->board);
-    for (i8 i=0; i<BOARD_SIZE; i++) nBoard[i] = pBoard[i]; // TODO (memcpy or equivalent?)
+    for (i8 i=0; i<BOARD_SIZE; i++) nBoard[i] = pBoard[i];
     assign(nBoard, player, origin, placement);
 
     newNode->parent = parent;
