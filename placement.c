@@ -24,7 +24,7 @@ i8 cellIdx(i8 x, i8 y) {
         case 4:
             return 40;
         default:
-            assert(0);
+            assert(0); return -1;
     }
 }
 

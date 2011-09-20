@@ -87,4 +87,7 @@ GameState* newGame();
 void destroy(GameState* state);
 GameState* children(GameState* state);
 
+void setHeuristicScores(GameState* state);
+void setTerminalScores(GameState* state);
+
 GameState* iterativeDeepeningSearch(GameState* node, int maxDepth);

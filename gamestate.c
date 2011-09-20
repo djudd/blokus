@@ -26,26 +26,30 @@ void destroy(GameState* state) {
     free(state);
 }
 
+void setPieces(GameState* parent, GameState* child, i8 player, i8 piece) {
+    i32* pPieces = &(parent->pieces);
+    i32* cPieces = &(child->pieces);
+    for (i8 i=0; i<NUM_PLAYERS; i++) cPieces[i] = pPieces[i];
+    cPieces[player-1] = cPieces[player-1] ^ (((i32) 1) << piece);
+}
+
+void setBoard(GameState* parent, GameState* child, i8 player, Corner* origin, Cell* placement) {
+    i64* pBoard = &(parent->board);
+    i64* cBoard = &(child->board);
+    for (i8 i=0; i<BOARD_SIZE; i++) cBoard[i] = pBoard[i];
+    assign(cBoard, player, origin, placement);
+}
+
 // TODO: memcpy (or own similar implementation)?
 GameState* addChild(GameState* parent, i8 player, i8 piece, Corner* origin, Cell* placement, GameState* next) {
-    GameState* newNode = malloc(sizeof(GameState));
-
-    newNode->turn = parent->turn + 1;
-
-    i32* pPieces = &(parent->pieces);
-    i32* nPieces = &(newNode->pieces);
-    for (i8 i=0; i<NUM_PLAYERS; i++) nPieces[i] = pPieces[i];
-    nPieces[player-1] = nPieces[player-1] ^ (((i32) 1) << piece);
-
-    i64* pBoard = &(parent->board);
-    i64* nBoard = &(newNode->board);
-    for (i8 i=0; i<BOARD_SIZE; i++) nBoard[i] = pBoard[i];
-    assign(nBoard, player, origin, placement);
-
-    newNode->parent = parent;
-    newNode->next = next;
-
-    return newNode;
+    GameState* child = malloc(sizeof(GameState));
+    child->turn = parent->turn + 1;
+    setPieces(parent, child, player, piece);
+    setBoard(parent, child, player, origin, placement);
+    child->parent = parent;
+    child->next = next;
+    setHeuristicScores(child);
+    return child;
 }
 
 GameState* children(GameState* state) {
