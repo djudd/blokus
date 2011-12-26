@@ -8,16 +8,6 @@ void init() {
     setPieceSizes();
 }
 
-// for debugging
-void printInitialMoves() {
-    GameState* game = newGame();
-    GameState* child = children(game);
-    while (child != NULL) {
-        printf("%s\n", toString(&(child->board)));
-        child = child->next;
-    }
-}
-
 int main(void) {
     init();
     iterativeDeepeningSearch(newGame(), 4);

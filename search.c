@@ -79,23 +79,25 @@ GameState* search(GameState* node, int depth) {
         return node;
     }
 
-    GameState* child = children(node);
+    initChildrenSearch(node);
 
+    GameState* child = nextChild(node);
     if (child == NULL) {
         setTerminalScores(node);
         return node;
     }
 
-    GameState* current = child;
     do {
-        GameState* grandChild = search(current, depth-1);
-        if (grandChild != current) { // if we didn't short circuit, but actually searched a new set of children
-            copyScores(grandChild, current);
+        GameState* grandChild = search(child, depth-1);
+        if (grandChild != child) { // if we didn't short circuit, but actually searched a new set of children
+            copyScores(grandChild, child);
             destroy(grandChild);
         }
 
-        current = current->next;
-    } while (current != NULL);
+        child = nextChild(node);
+    } while (child != NULL);
+
+    cleanupChildrenSearch(node);
 
     return sort(child);
 }

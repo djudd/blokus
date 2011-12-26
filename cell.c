@@ -11,6 +11,7 @@ Cell* addCell(i8 x, i8 y, Cell* next) {
     return newNode;
 }
 
+// TODO: a) corners should probably be its own file; b) need smarter malloc for multiple turns AND multiple players
 // definitely not thread-safe
 Corner* corners;
 Corner* nextCorner;

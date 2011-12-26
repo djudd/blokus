@@ -12,43 +12,54 @@
 #define LOWER_RIGHT 2
 #define UPPER_RIGHT 3
 
+typedef i8 Direction;
+typedef i8 Offset;
+typedef i8 Coord;
+typedef i8 Player;
+
 i8* pieceSizes;
 i32 totalPieceSize;
 void setPieceSizes();
 
 typedef struct cell {
-    i8 x, y;
+    Offset x, y;
     struct cell * next;
 } Cell;
 
-Cell* addCell(i8 x, i8 y, Cell* next);
+Cell* addCell(Offset x, Offset y, Cell* next);
 
 typedef struct corner {
-    i8 x, y;
-    i8 corner;
+    Offset x, y;
+    Direction corner;
     i64 bitmap;
     struct corner * next;
 } Corner;
 
-Corner* addCorner(i8 x, i8 y, i8 corner, i64 bitmap, Corner* next);
+Corner* addCorner(Offset x, Offset y, Direction corner, i64 bitmap, Corner* next);
 
 void initCornerStorage();
 void destroyCorners();
 
 typedef struct placement {
     Cell* cells;
+    Corner* corners;
     i64 bitmap;
     struct placement * next;
 } Placement;
 
 Placement*** placements;
 void generatePlacements();
-i64 bit(i8 x, i8 y);
+i64 bit(Coord x, Coord y);
 
-void assign(i64* board, i8 player, Corner* origin, Cell* cell);
-Corner* availableCorners(i64* board, i8 player, i8 turn);
+void assign(i64* board, Player player, Corner* origin, Cell* cell);
+void calculateCornerValidNeighborhoods(Corner* corners, i64* board, Player player);
+Corner* getNextCornersForNonMovingPlayer(Corner* corners, i64* board);
+Corner* getNextCornersForMovingPlayer(Corner* corners, i64* board, Player player, Corner* origin, Corner* newCorners);
 char* toString(i64* board);
 
+// board, pieces, scores, and corners are really arrays
+// we embed them directly in the struct in order to do just one malloc & free
+// this isn't necessarily portable
 typedef struct state {
     i8 turn;
     i64 board;
@@ -79,13 +90,19 @@ typedef struct state {
     float scores_1;
     float scores_2;
     float scores_3;
+    Corner* corners;
+    Corner* corners_1;
+    Corner* corners_2;
+    Corner* corners_3;
     struct state * parent;
     struct state * next;
 } GameState;
 
 GameState* newGame();
 void destroy(GameState* state);
-GameState* children(GameState* state);
+void initChildrenSearch(GameState* state);
+void cleanupChildrenSearch(GameState* state);
+GameState* nextChild(GameState* state);
 
 void setHeuristicScores(GameState* state);
 void setTerminalScores(GameState* state);

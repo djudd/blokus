@@ -31,25 +31,25 @@ i64 pow5(i8 n) {
     }
 }
 
-void setOwner(i64* board, i8 player, i8 x, i8 y) {
+void setOwner(i64* board, Player player, Coord x, Coord y) {
     assert(x >= 0 && x < BOARD_SIZE);
     assert(y >= 0 && y < BOARD_SIZE);
     board[x] = board[x] + (pow5(y) * player);
 }
 
-i8 owner(i64* board, i8 x, i8 y) {
+Player owner(i64* board, Coord x, Coord y) {
     return (board[x] / pow5(y)) % 5;
 }
 
-bool hasOwner(i64* board, i8 player, i8 x, i8 y) {
+bool hasOwner(i64* board, Player player, Coord x, Coord y) {
     return (board[x] / pow5(y)) % 5 == player;
 }
 
-bool hasAnyOwner(i64* board, i8 x, i8 y) {
+bool hasAnyOwner(i64* board, Coord x, Coord y) {
     return (board[x] / pow5(y)) % 5 > 0;
 }
 
-void assign(i64* board, i8 player, Corner* origin, Cell* cell) {
+void assign(i64* board, Player player, Corner* origin, Cell* cell) {
     setOwner(board, player, origin->x, origin->y);
     while (cell != NULL) {
         setOwner(board, player, cell->x + origin->x, cell->y + origin->y);
@@ -57,7 +57,7 @@ void assign(i64* board, i8 player, Corner* origin, Cell* cell) {
     }
 }
 
-i8 touchesCorner(i64* board, i8 player, i8 x, i8 y) {
+Direction touchesCorner(i64* board, Player player, Coord x, Coord y) {
     if (x+1 < BOARD_SIZE) {
         if (y+1 < BOARD_SIZE && hasOwner(board, player, x+1, y+1)) {
             return LOWER_RIGHT;
@@ -78,7 +78,7 @@ i8 touchesCorner(i64* board, i8 player, i8 x, i8 y) {
     return -1;
 }
 
-bool touchesSide(i64* board, i8 player, i8 x, i8 y) {
+bool touchesSide(i64* board, Player player, Coord x, Coord y) {
     if (x+1 < BOARD_SIZE && hasOwner(board, player, x+1, y))
         return true;
     if (x-1 >= 0 && hasOwner(board, player, x-1, y))
@@ -91,11 +91,11 @@ bool touchesSide(i64* board, i8 player, i8 x, i8 y) {
     return false;
 }
 
-bool onBoard(i8 x, i8 y) {
+bool onBoard(Coord x, Coord y) {
     return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
 }
 
-bool valid(i64* board, i8 player, i8 x, i8 y) {
+bool valid(i64* board, Player player, Coord x, Coord y) {
     return onBoard(x, y) && !hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y);
 }
 
@@ -104,7 +104,7 @@ bool valid(i64* board, i8 player, i8 x, i8 y) {
 #define ADD_BIT_LL(i,j) if (valid(board, player, x+(i), y-(j))) result |= bit((i),-(j));
 #define ADD_BIT_LR(i,j) if (valid(board, player, x-(i), y-(j))) result |= bit(-(i),-(j));
 
-i64 calcBitmap(i8 x, i8 y, i8 corner, i64* board, i8 player) {
+i64 calcBitmap(Coord x, Coord y, Direction corner, i64* board, Player player) {
     i64 result = 0;
     switch (corner) {
         case UPPER_LEFT:
@@ -235,32 +235,63 @@ i64 calcBitmap(i8 x, i8 y, i8 corner, i64* board, i8 player) {
     }
 }
 
-Corner* _addCorner(i8 x, i8 y, i8 corner, i64* board, i8 player, Corner* next) {
-    i64 bitmap = calcBitmap(x, y, corner, board, player);
-    return addCorner(x, y, corner, bitmap, next);
+void calculateCornerValidNeighborhoods(Corner* corner, i64* board, Player player) {
+    while (corner != NULL) {
+        corner->bitmap = calcBitmap(corner->x, corner->y, corner->corner, board, player);
+        corner = corner->next;
+    }
 }
 
-Corner* availableCorners(i64* board, i8 player, i8 turn) {
-    switch (turn) {
-        case 0: return _addCorner(0,0,UPPER_LEFT,board,player,NULL);
-        case 1: return _addCorner(BOARD_SIZE-1,0,UPPER_RIGHT,board,player,NULL);
-        case 2: return _addCorner(BOARD_SIZE-1,BOARD_SIZE-1,LOWER_LEFT,board,player,NULL);
-        case 3: return _addCorner(0,BOARD_SIZE-1,LOWER_RIGHT,board,player,NULL);
-        default:
-            ; // http://old.nabble.com/-Bug-c-37231---New:-GCC-does-not-compile-code-with-label-statements-that-are-followed-by-a-declaration-td19140837.html
-            Corner* cell = NULL;
-            for (i8 x=0; x<BOARD_SIZE; x++) {
-                for (i8 y=0; y<BOARD_SIZE; y++) {
-                    if (valid(board, player, x, y)) {
-                        i8 corner = touchesCorner(board, player, x, y);
-                        if (corner >= 0) {
-                            cell = _addCorner(x, y, corner, board, player, cell);
-                        }
-                    }
-                }
-            }
-            return cell;
+Corner* getNextCornersForNonMovingPlayer(Corner* corner, i64* board) {
+    Corner* result = NULL;
+    while (corner != NULL) {
+        if (!hasAnyOwner(board, corner->x, corner->y)) {
+            result = addCorner(corner->x, corner->y, corner->corner, corner->bitmap, result);
+        }
+
+        corner = corner->next;
     }
+    return result;
+}
+
+// TODO Is there a way to make this more efficient? Can't just check for multiple corners in new board, because the U could add two
+bool alreadyInList(Corner* corner, Coord x, Coord y) {
+    while (corner != NULL) {
+        if ((x == corner->x) && (y == corner->y))
+            return true;
+
+        corner = corner->next;
+    }
+
+    return false;
+}
+
+Corner* getNextCornersForMovingPlayer(Corner* oldCorner, i64* board, Player player, Corner* origin, Corner* newCorner) {
+    Corner* result = NULL;
+
+    while (oldCorner != NULL) {
+        Coord x = oldCorner->x;
+        Coord y = oldCorner->y;
+
+        if (!hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y)) {
+            result = addCorner(x, y, oldCorner->corner, oldCorner->bitmap, result);
+        }
+
+        oldCorner = oldCorner->next;
+    }
+
+    while (newCorner != NULL) {
+        Coord x = origin->x + newCorner->x;
+        Coord y = origin->y + newCorner->y;
+
+        if (!hasAnyOwner(board, x, y) && !touchesSide(board, player, x, y) && !alreadyInList(result, x, y)) {
+            result = addCorner(x, y, newCorner->corner, newCorner->bitmap, result);
+        }
+
+        newCorner = newCorner->next;
+    }
+
+    return result;
 }
 
 char* toString(i64* board) {
@@ -268,7 +299,7 @@ char* toString(i64* board) {
     int idx = 0;
     for (int i=0; i<BOARD_SIZE; i++) {
         for (int j=0; j<BOARD_SIZE; j++) {
-            i8 cellOwner = owner(board, i, j);
+            Player cellOwner = owner(board, i, j);
             if (cellOwner == 0)
                 result[idx++] = '.';
             else
