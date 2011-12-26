@@ -1,3 +1,10 @@
+module Placement (
+    PieceSquare,
+    PieceCorner (PieceCorner),
+    PlacementBitmap,
+    Direction
+) where
+
 import Data.Bits
 import Data.Int
 import Data.Word
@@ -6,10 +13,14 @@ import Piece
 import Data.List
 
 type PieceSquare = (Offset,Offset) -- square occupied by a placement of a piece, labeled by offset from the origin of the placement
-type PieceCorner = (Offset,Offset) -- square touching only the corner of a PieceSquare, labeled by offset from the origin of the placement
 type PlacementBitmap = Word64
 
+data Direction = UpperRight | LowerRight | UpperLeft | LowerLeft deriving (Show,Eq)
+data PieceCorner = PieceCorner Offset Offset Direction deriving (Show)
 data Placement = Placement PieceLabel [PieceSquare] [PieceCorner] PlacementBitmap deriving (Show)
+
+instance Eq PieceCorner where
+    (PieceCorner x1 y1 d1) == (PieceCorner x2 y2 d2) = (x1 == x2) && (y1 == y2) && (d1 == d2)
 
 offsetsIdx :: Offset -> Offset -> Int8
 offsetsIdx x y = case x+4 of
@@ -29,18 +40,15 @@ toBitmap offsets = foldl setBit' 0 offsets
 
 touchesOn a b = (abs (a-b)) <= 1
 touches x y (i,j) = ((touchesOn x i) && (y == j)) || ((touchesOn y j) && (x == i))
-legal offsets (x, y) = not $ any (touches x y) offsets
+legal offsets (PieceCorner x y direction) = not $ any (touches x y) offsets
 
-diagonals (x, y) = (x+1,y+1):(x+1,y-1):(x-1,y+1):(x-1,y-1):[]
-
-legalCorners :: [PieceSquare] -> [PieceCorner]
+corners (x, y) = (PieceCorner (x+1) (y+1) UpperRight):(PieceCorner (x+1) (y-1) LowerRight):(PieceCorner (x-1) (y+1) UpperLeft):(PieceCorner (x-1) (y-1) LowerLeft):[]
 legalCorners offsets =
-    let corners = concat $ map diagonals offsets
-     in nub $ filter (legal offsets) corners
+    let pieceCorners = concat $ map corners offsets
+     in nub $ filter (legal offsets) pieceCorners
 
 buildPlacement label offsets = Placement label offsets (legalCorners offsets) (toBitmap offsets)
 buildPlacements piece = map (buildPlacement (getLabel piece)) (getPlacements piece)
 
 allPlacements = concat $ map buildPlacements allPieces
 
-main = print $ filter (\(Placement label _ _ _) -> label == '2') allPlacements
