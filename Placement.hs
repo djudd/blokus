@@ -6,10 +6,15 @@ module Placement (
     Direction (UpperRight,LowerRight,UpperLeft,LowerLeft),
     hasLabel,
     allPlacements,
-    initialPlacements
+    initialPlacements,
+    reachableOffsetsUpperRight,
+    reachableOffsetsLowerRight,
+    reachableOffsetsUpperLeft,
+    reachableOffsetsLowerLeft,
+    toBitmap
 ) where
 
-import Data.Bits
+import Data.Bits hiding (rotate)
 import Data.Int
 import Data.Word
 import Data.List
@@ -40,7 +45,7 @@ offsetsIdx x y = case x+4 of
     7 -> 37 + (y+1)
     8 -> 40
 
-toBitmap :: [PieceSquare] -> PlacementBitmap
+toBitmap :: [(Offset,Offset)] -> PlacementBitmap
 toBitmap offsets = foldl setBit' 0 offsets 
     where setBit' bitmap (x,y) = setBit bitmap $ fromIntegral $ offsetsIdx x y
 
@@ -58,3 +63,12 @@ buildPlacement piece offsets = Placement (getLabel piece) offsets (legalCorners 
 allPlacements = [buildPlacement piece offsets | piece <- allPieces, offsets <- (getPlacements piece)]
 
 initialPlacements = take 4 $ repeat allPlacements
+
+reachableOffsets :: [(Offset,Offset)]
+reachableOffsets = [(1,-3),(0,-2),(1,-2),(2,-2),(1,-1),(2,-1),(3,-1),(-2,0),(1,0),(2,0),(3,0),(4,0),(-3,1),(-2,1),(-1,1),(0,1),(1,1),(2,1),(3,1),(-2,2),(-1,2),(0,2),(1,2),(2,2),(-1,3),(0,3),(1,3),(0,4)]
+
+reachableOffsetsUpperRight = rotate (1,1) reachableOffsets
+reachableOffsetsUpperLeft = rotate (-1,1) reachableOffsets
+reachableOffsetsLowerRight = rotate (1,-1) reachableOffsets
+reachableOffsetsLowerLeft = rotate (-1,-1) reachableOffsets
+

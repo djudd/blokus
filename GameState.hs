@@ -2,6 +2,8 @@
 
 --) where
 
+import Data.Bits
+
 import Board
 import Corner
 import Placement
@@ -33,11 +35,13 @@ getChild (State turn board playerCorners placements) (TerritoryCorner x y direct
         playerCorners' = replaceAt (fromIntegral player) remainingCorners moverCorners' 
      in State turn' board' playerCorners' placements'
 
+legalAt (TerritoryCorner _ _ _ cornerBitmap) (Placement _ _ _ placementBitmap) = (placementBitmap .&. cornerBitmap) == placementBitmap
+
 getChildren (State turn board playerCorners placements) = 
     let player = currentPlayer turn
         getMyChild = getChild (State turn board playerCorners placements)
         moverPlacements = placements !! (fromIntegral player)
         moverCorners = playerCorners !! (fromIntegral player)
-     in [getMyChild corner placement | corner <- moverCorners, placement <- moverPlacements]
+     in [getMyChild corner placement | corner <- moverCorners, placement <- moverPlacements, legalAt corner placement]
 
 main = print $ getChildren newGame

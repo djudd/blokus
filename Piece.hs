@@ -4,7 +4,9 @@ module Piece (
     PieceLabel,
     allPieces,
     getLabel,
-    getPlacements
+    getPlacements,
+    rotate,
+    translate
 ) where
 
 import Data.Int
@@ -61,5 +63,3 @@ getPlacements (Piece _ offsets) =
     let offsets' = (0,0):offsets
         all = concat $ map translations $ concat $ map rotations $ reflections offsets'
     in nub all
-
-
