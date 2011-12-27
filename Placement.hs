@@ -1,16 +1,17 @@
 module Placement (
     PieceSquare,
     PieceCorner (PieceCorner),
+    Placement (Placement),
     PlacementBitmap,
-    Direction
+    Direction (UpperRight,LowerRight,UpperLeft,LowerLeft)
 ) where
 
 import Data.Bits
 import Data.Int
 import Data.Word
+import Data.List
 
 import Piece
-import Data.List
 
 type PieceSquare = (Offset,Offset) -- square occupied by a placement of a piece, labeled by offset from the origin of the placement
 type PlacementBitmap = Word64
