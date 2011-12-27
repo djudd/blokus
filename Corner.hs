@@ -19,7 +19,7 @@ instance Eq TerritoryCorner where
     (TerritoryCorner x1 y1 d1 _) == (TerritoryCorner x2 y2 d2 _) = (x1 == x2) && (y1 == y2) && (d1 == d2)
 
 bound = boardSize - 1
-mkCorner player x y direction = [TerritoryCorner x y direction $ calculateValidityBitmap player empty x y direction]
+mkCorner player x y direction = [TerritoryCorner x y direction $ calculateValidityBitmap player emptyBoard x y direction]
 initialCorners = (mkCorner 0 0 0 UpperRight):(mkCorner 1 bound 0 UpperLeft):(mkCorner 2 0 bound LowerRight):(mkCorner 3 bound bound LowerLeft):[]
 
 unowned board (TerritoryCorner x y _ _) = (getOwner board x y) == 0

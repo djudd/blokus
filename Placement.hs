@@ -3,7 +3,10 @@ module Placement (
     PieceCorner (PieceCorner),
     Placement (Placement),
     PlacementBitmap,
-    Direction (UpperRight,LowerRight,UpperLeft,LowerLeft)
+    Direction (UpperRight,LowerRight,UpperLeft,LowerLeft),
+    hasLabel,
+    allPlacements,
+    initialPlacements
 ) where
 
 import Data.Bits
@@ -22,6 +25,8 @@ data Placement = Placement PieceLabel [PieceSquare] [PieceCorner] PlacementBitma
 
 instance Eq PieceCorner where
     (PieceCorner x1 y1 d1) == (PieceCorner x2 y2 d2) = (x1 == x2) && (y1 == y2) && (d1 == d2)
+
+hasLabel test (Placement label _ _ _) = label == test
 
 offsetsIdx :: Offset -> Offset -> Int8
 offsetsIdx x y = case x+4 of
@@ -48,8 +53,8 @@ legalCorners offsets =
     let pieceCorners = concat $ map corners offsets
      in nub $ filter (legal offsets) pieceCorners
 
-buildPlacement label offsets = Placement label offsets (legalCorners offsets) (toBitmap offsets)
-buildPlacements piece = map (buildPlacement (getLabel piece)) (getPlacements piece)
+buildPlacement piece offsets = Placement (getLabel piece) offsets (legalCorners offsets) (toBitmap offsets)
 
-allPlacements = concat $ map buildPlacements allPieces
+allPlacements = [buildPlacement piece offsets | piece <- allPieces, offsets <- (getPlacements piece)]
 
+initialPlacements = take 4 $ repeat allPlacements

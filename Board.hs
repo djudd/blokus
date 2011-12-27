@@ -6,7 +6,8 @@ module Board (
     getOwner,
     hasOwner,
     boardSize,
-    empty
+    emptyBoard,
+    showBoard
 ) where
 
 import Data.Array.Unboxed
@@ -21,9 +22,13 @@ type Player = Int8
 type Board = Array Int8 Word64
 
 boardSize = 20
+boardBound = boardSize - 1
 
-empty :: Board
-empty = array (0,boardSize-1) [(i,0) | i <- [0..(boardSize-1)]]
+showRow board row = (concat $ [show $ getOwner board row y | y <- [0..boardBound]]) ++ "\n"
+showBoard board = (concat $ [showRow board x | x <- [0..boardBound]]) ++ "\n"
+
+emptyBoard :: Board
+emptyBoard = array (0,boardBound) [(i,0) | i <- [0..boardBound]]
 
 getOwner :: Board -> Coord -> Coord -> Player
 getOwner board x y = fromIntegral $ ((board ! x) `div` (5 ^ y)) `mod` 5

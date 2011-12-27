@@ -1,6 +1,6 @@
-module GameState (
+--module GameState (
 
-) where
+--) where
 
 import Board
 import Corner
@@ -8,16 +8,36 @@ import Placement
 
 type Turn = Int
 
-data GameState = State Turn Board [[TerritoryCorner]]
+data GameState = State Turn Board [[TerritoryCorner]] [[Placement]]
 
-newGame = State 0 empty initialCorners
+instance Show GameState where 
+    show (State _ board _ _) = showBoard board
 
-afterMove :: GameState -> TerritoryCorner -> Placement -> GameState
-afterMove (State turn board playerCorners) (TerritoryCorner x y direction _) (Placement _ offsets pieceCorners _) =
-    let player = fromIntegral $ (turn `mod` 4) + 1
+newGame = State 0 emptyBoard initialCorners initialPlacements
+
+replaceAt index list value = (take index list) ++ [value] ++ (drop (index+1) list)
+
+currentPlayer turn = (turn `mod` 4) + 1
+
+getChild :: GameState -> TerritoryCorner -> Placement -> GameState
+getChild (State turn board playerCorners placements) (TerritoryCorner x y direction _) (Placement pieceLabel offsets pieceCorners _) =
+    let turn' = turn+1
+        player = fromIntegral $ currentPlayer turn
         board' = assign player x y offsets board
+        moverPlacements = placements !! (fromIntegral player)
+        moverPlacements' = filter (not . (hasLabel pieceLabel)) moverPlacements
+        placements' = replaceAt (fromIntegral player) placements moverPlacements'
+        moverCorners = playerCorners !! (fromIntegral player)
+        moverCorners' = getCornersForMovingPlayer player board' moverCorners x y pieceCorners
         remainingCorners = getNotTakenCorners board playerCorners
-        moverCorners = getCornersForMovingPlayer player board' (playerCorners !! (fromIntegral player)) x y pieceCorners
-        playerCorners' = (take (fromIntegral player) remainingCorners) ++ [moverCorners] ++ (drop (fromIntegral $ player+1) remainingCorners)
-    in State (turn+1) board' playerCorners'
+        playerCorners' = replaceAt (fromIntegral player) remainingCorners moverCorners' 
+     in State turn' board' playerCorners' placements'
 
+getChildren (State turn board playerCorners placements) = 
+    let player = currentPlayer turn
+        getMyChild = getChild (State turn board playerCorners placements)
+        moverPlacements = placements !! (fromIntegral player)
+        moverCorners = playerCorners !! (fromIntegral player)
+     in [getMyChild corner placement | corner <- moverCorners, placement <- moverPlacements]
+
+main = print $ getChildren newGame
