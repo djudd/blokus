@@ -11,7 +11,8 @@ module Placement (
     reachableOffsetsLowerRight,
     reachableOffsetsUpperLeft,
     reachableOffsetsLowerLeft,
-    toBitmap
+    toBitmap,
+    legalCorners
 ) where
 
 import Data.Bits hiding (rotate)
