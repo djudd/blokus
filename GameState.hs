@@ -1,6 +1,6 @@
---module GameState (
+module GameState (
 
---) where
+) where
 
 import Data.Bits
 
@@ -12,7 +12,7 @@ type Turn = Int
 
 data GameState = State Turn Board [[TerritoryCorner]] [[Placement]]
 
-instance Show GameState where 
+instance Show GameState where
     show (State _ board _ _) = showBoard board
 
 newGame = State 0 emptyBoard initialCorners initialPlacements
@@ -32,12 +32,12 @@ getChild (State turn board playerCorners placements) (TerritoryCorner x y direct
         moverCorners = playerCorners !! (fromIntegral player)
         moverCorners' = getCornersForMovingPlayer player board' moverCorners x y pieceCorners
         remainingCorners = getNotTakenCorners board playerCorners
-        playerCorners' = replaceAt (fromIntegral player) remainingCorners moverCorners' 
+        playerCorners' = replaceAt (fromIntegral player) remainingCorners moverCorners'
      in State turn' board' playerCorners' placements'
 
 legalAt (TerritoryCorner _ _ _ cornerBitmap) (Placement _ _ _ placementBitmap) = (placementBitmap .&. cornerBitmap) == placementBitmap
 
-getChildren (State turn board playerCorners placements) = 
+getChildren (State turn board playerCorners placements) =
     let player = currentPlayer turn
         getMyChild = getChild (State turn board playerCorners placements)
         moverPlacements = placements !! (fromIntegral player)

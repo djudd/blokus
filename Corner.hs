@@ -37,15 +37,15 @@ onBoard (x, y) = (x >= 0) && (x < boardSize) && (y >= 0) && (y < boardSize)
 
 getCoords (TerritoryCorner x y _ _) = (x,y)
 
-getNotTakenCorners :: Board -> [[TerritoryCorner]] -> [[TerritoryCorner]] 
-getNotTakenCorners board playerCorners = 
+getNotTakenCorners :: Board -> [[TerritoryCorner]] -> [[TerritoryCorner]]
+getNotTakenCorners board playerCorners =
     map (filter $ (unowned board) . getCoords) playerCorners
 
-validOffset player board x y (i,j) = 
+validOffset player board x y (i,j) =
     let coords = (x+i,y+j)
      in (onBoard coords) && (legal player board coords)
 
-calculateValidityBitmap player board x y direction = 
+calculateValidityBitmap player board x y direction =
     let validBits offsets = toBitmap $ filter (validOffset player board x y) offsets
     in case direction of
         UpperRight -> validBits reachableOffsetsUpperRight
@@ -60,7 +60,7 @@ translateCorner player board i j (PieceCorner x y direction) =
     in TerritoryCorner x' y' direction bitmap
 
 getCornersForMovingPlayer :: Player -> Board -> [TerritoryCorner] -> Coord -> Coord -> [PieceCorner] -> [TerritoryCorner]
-getCornersForMovingPlayer player board prevCorners x y playedCorners = 
+getCornersForMovingPlayer player board prevCorners x y playedCorners =
     let filter' = filter $ (legal player board) . getCoords
         old = filter' $ prevCorners
         new = filter' $ map (translateCorner player board x y) playedCorners

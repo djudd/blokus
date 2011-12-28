@@ -18,6 +18,7 @@ import Data.Bits hiding (rotate)
 import Data.Int
 import Data.Word
 import Data.List
+import Test.QuickCheck
 
 import Piece
 
@@ -46,7 +47,7 @@ offsetsIdx x y = case x+4 of
     8 -> 40
 
 toBitmap :: [(Offset,Offset)] -> PlacementBitmap
-toBitmap offsets = foldl setBit' 0 offsets 
+toBitmap offsets = foldl setBit' 0 offsets
     where setBit' bitmap (x,y) = setBit bitmap $ fromIntegral $ offsetsIdx x y
 
 touchesOn a b = (abs (a-b)) <= 1
