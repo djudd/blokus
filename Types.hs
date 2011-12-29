@@ -45,19 +45,11 @@ data Piece =
 
 data PieceCorner = PieceCorner Offset Offset CornerType deriving (Show)
 
--- TODO move
-instance Eq PieceCorner where
-    (PieceCorner x1 y1 d1) == (PieceCorner x2 y2 d2) = (x1 == x2) && (y1 == y2) && (d1 == d2)
-
 data Placement = Placement Piece [(Offset,Offset)] [PieceCorner] ValidityBitmap deriving (Show)
 
 type Board = Array Int8 Word64
 
 data TerritoryCorner = TerritoryCorner Coord Coord CornerType ValidityBitmap deriving (Show)
-
--- TODO move
-instance Eq TerritoryCorner where
-    (TerritoryCorner x1 y1 d1 _) == (TerritoryCorner x2 y2 d2 _) = (x1 == x2) && (y1 == y2) && (d1 == d2)
 
 data Move = Move Player Coord Coord Placement
 

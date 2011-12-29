@@ -14,18 +14,21 @@ import Types
 import Offset
 import Utils
 
+instance Eq PieceCorner where
+    (PieceCorner x1 y1 d1) == (PieceCorner x2 y2 d2) = (x1 == x2) && (y1 == y2) && (d1 == d2)
+
 touchesOn a b = (abs (a-b)) <= 1
 touches x y (i,j) = ((touchesOn x i) && (y == j)) || ((touchesOn y j) && (x == i))
 legal offsets (PieceCorner x y _) = not $ any (touches x y) offsets
 
 corners (x, y) = (PieceCorner (x+1) (y+1) UpperRight):(PieceCorner (x+1) (y-1) LowerRight):(PieceCorner (x-1) (y+1) UpperLeft):(PieceCorner (x-1) (y-1) LowerLeft):[]
 legalCorners offsets =
-    let pieceCorners = concat $ map corners offsets
+    let pieceCorners = concatMap corners offsets
      in nub $ filter (legal offsets) pieceCorners
 
 getTransformations piece =
     let offsets = (0,0):(getOffsets piece)
-        all = concat $ map translations $ concat $ map rotations $ reflections offsets
+        all = concatMap translations $ concatMap rotations $ reflections offsets
     in nub $ map sort all
 
 buildPlacement piece offsets = Placement piece offsets (legalCorners offsets) (toBitmap offsets)

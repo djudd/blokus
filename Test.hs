@@ -5,6 +5,7 @@ import Test.QuickCheck.All
 import Data.List
 import Data.Word
 import Data.Int
+import Data.Array.Unboxed
 import qualified Data.Bits as Bits
 
 import Types
@@ -12,6 +13,7 @@ import Placement
 import Board
 import Territory
 import Offset
+import GameState
 import Utils
 
 prop_placements_one = length (getTransformations OnePiece) == 1
@@ -35,11 +37,20 @@ coords = do
     y <- elements [0..boardSize-1]
     return (x,y)
 
-prop_getBoardAfterMove_hasOwner =
-    let makeMove x y = getBoardAfterMove emptyBoard (Move 1 x y (Placement OnePiece [(0,0)] [] 0))
-    in forAll coords $ \(x,y) -> not $ unowned (makeMove x y) (x, y)
+prop_getBoardAfterMove_owner =
+    let makeMove x y = getBoardAfterMove emptyBoard (Move 1 x y (Placement OnePiece [] [] 0))
+    in forAll coords $ \(x,y) -> (==1) $ getOwner (makeMove x y) x y
+
+boardWithOneMove = getBoardAfterMove emptyBoard (Move 1 0 0 (Placement OnePiece [] [] 0))
+
+prop_legal_noOverlap = not $ legal 1 boardWithOneMove (0,0)
+prop_legal_noSides = not $ (legal 1 boardWithOneMove (0,1)) || (legal 1 boardWithOneMove (1,0))
+prop_legal_corner = legal 1 boardWithOneMove (1,1)
+prop_legal_distant = legal 1 boardWithOneMove (boardSize-1,boardSize-1)
 
 prop_initialPlacements_len = length initialPlacements == numPlayers
 prop_initialCorners_len = length initialCorners == numPlayers
 
-main = $(quickCheckAll)
+--main = $(quickCheckAll)
+
+main = print $ getChildren newGame

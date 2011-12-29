@@ -1,5 +1,6 @@
 module GameState (
-
+    newGame,
+    getChildren
 ) where
 
 import Data.Bits
@@ -34,5 +35,3 @@ getChildren (State turn board corners placements) =
         moverCorners = corners !! (fromIntegral mover)
         moverPlacements = placements !! (fromIntegral mover)
      in [getMyChild corner placement | corner <- moverCorners, placement <- moverPlacements, legalAt corner placement]
-
-main = print $ getChildren newGame
