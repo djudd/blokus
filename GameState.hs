@@ -6,7 +6,7 @@ import Data.Bits
 
 import Types
 import Board
-import Corner
+import Territory
 import Placement
 
 instance Show GameState where

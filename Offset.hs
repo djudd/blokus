@@ -1,5 +1,6 @@
 module Offset (
     toBitmap,
+    getOffsets,
     getReachableOffsets
 ) where
 
@@ -26,6 +27,28 @@ offsetsIdx x y = case x+4 of
 toBitmap :: [(Offset,Offset)] -> ValidityBitmap
 toBitmap offsets = foldl setBit' 0 offsets
     where setBit' bitmap (x,y) = setBit bitmap $ fromIntegral $ offsetsIdx x y
+
+getOffsets OnePiece = []
+getOffsets TwoPiece = [(0,1)]
+getOffsets ThreePiece = [(0,1),(0,2)]
+getOffsets CrookedThree = [(0,1),(1,0)]
+getOffsets SquarePiece = [(0,1),(1,0),(1,1)]
+getOffsets ShortI = [(0,1),(0,2),(0,3)]
+getOffsets ShortT = [(0,1),(1,1),(-1,1)]
+getOffsets ShortL = [(0,1),(1,0),(0,2)]
+getOffsets ShortZ = [(0,1),(1,1),(1,2)]
+getOffsets LongI = [(0,1),(0,2),(0,3),(0,4)]
+getOffsets LongT = [(0,1),(0,2),(1,2),(-1,2)]
+getOffsets LongL = [(0,1),(1,0),(0,2),(0,3)]
+getOffsets LongZ = [(0,1),(1,1),(0,-1),(-1,-1)]
+getOffsets PPiece = [(0,1),(1,0),(1,1),(0,2)]
+getOffsets FPiece = [(0,1),(1,0),(0,-1),(-1,-1)]
+getOffsets XPiece = [(0,1),(1,0),(0,-1),(-1,0)]
+getOffsets VPiece = [(0,1),(0,2),(1,0),(2,0)]
+getOffsets UPiece = [(0,1),(0,-1),(1,1),(1,-1)]
+getOffsets YPiece = [(0,1),(1,0),(-1,0),(-2,0)]
+getOffsets NPiece = [(0,1),(1,1),(2,1),(3,1)]
+getOffsets WPiece = [(0,1),(1,1),(-1,0),(-1,-1)]
 
 reachableOffsets :: [(Offset,Offset)]
 reachableOffsets = [(1,-3),(0,-2),(1,-2),(2,-2),(1,-1),(2,-1),(3,-1),(-2,0),(1,0),(2,0),(3,0),(4,0),(-3,1),(-2,1),(-1,1),(0,1),(1,1),(2,1),(3,1),(-2,2),(-1,2),(0,2),(1,2),(2,2),(-1,3),(0,3),(1,3),(0,4)]

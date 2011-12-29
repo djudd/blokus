@@ -1,4 +1,4 @@
-module Corner (
+module Territory (
     initialCorners,
     getCornersAfterMove
 ) where
