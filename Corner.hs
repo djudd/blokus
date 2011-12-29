@@ -1,6 +1,4 @@
 module Corner (
-    Coord,
-    TerritoryCorner (TerritoryCorner),
     getCornersForMovingPlayer,
     getNotTakenCorners,
     initialCorners
@@ -9,17 +7,13 @@ module Corner (
 import Data.Int
 import Data.List
 
+import Types
 import Piece
-import Placement
 import Board
-
-data TerritoryCorner = TerritoryCorner Coord Coord Direction PlacementBitmap deriving (Show)
-
-instance Eq TerritoryCorner where
-    (TerritoryCorner x1 y1 d1 _) == (TerritoryCorner x2 y2 d2 _) = (x1 == x2) && (y1 == y2) && (d1 == d2)
+import Offset
 
 bound = boardSize - 1
-mkCorner player x y direction = [TerritoryCorner x y direction $ calculateValidityBitmap player emptyBoard x y direction]
+mkCorner player x y cornerType = [TerritoryCorner x y cornerType $ calculateValidityBitmap player emptyBoard x y cornerType]
 initialCorners = (mkCorner 0 0 0 UpperRight):(mkCorner 1 bound 0 UpperLeft):(mkCorner 2 0 bound LowerRight):(mkCorner 3 bound bound LowerLeft):[]
 
 unowned board (x, y) = (getOwner board x y) == 0
@@ -45,19 +39,14 @@ validOffset player board x y (i,j) =
     let coords = (x+i,y+j)
      in (onBoard coords) && (legal player board coords)
 
-calculateValidityBitmap player board x y direction =
-    let validBits offsets = toBitmap $ filter (validOffset player board x y) offsets
-    in case direction of
-        UpperRight -> validBits reachableOffsetsUpperRight
-        LowerRight -> validBits reachableOffsetsLowerRight
-        UpperLeft -> validBits reachableOffsetsUpperLeft
-        LowerLeft -> validBits reachableOffsetsLowerLeft
+calculateValidityBitmap player board x y cornerType =
+    toBitmap $ filter (validOffset player board x y) $ getReachableOffsets cornerType
 
-translateCorner player board i j (PieceCorner x y direction) =
+translateCorner player board i j (PieceCorner x y cornerType) =
     let x' = i+x
         y' = j+y
-        bitmap = calculateValidityBitmap player board x' y' direction
-    in TerritoryCorner x' y' direction bitmap
+        bitmap = calculateValidityBitmap player board x' y' cornerType
+    in TerritoryCorner x' y' cornerType bitmap
 
 getCornersForMovingPlayer :: Player -> Board -> [TerritoryCorner] -> Coord -> Coord -> [PieceCorner] -> [TerritoryCorner]
 getCornersForMovingPlayer player board prevCorners x y playedCorners =

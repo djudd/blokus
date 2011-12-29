@@ -7,33 +7,30 @@ import Data.Word
 import Data.Int
 import qualified Data.Bits as Bits
 
+import Types
 import Piece
-import Placement
 import Board
 import Corner
+import Offset
+import Utils
 
-assert_placements_piece_len idx len = length (getPlacements piece) == len
-    where piece = allPieces !! idx
-
-prop_placements_one = assert_placements_piece_len 0 1
-prop_placements_two = assert_placements_piece_len 1 4
-prop_placements_three = assert_placements_piece_len 2 6
-prop_placements_crookedThree = assert_placements_piece_len 3 12
+prop_placements_one = length (filter (hasPiece OnePiece) allPlacements) == 1
+prop_placements_two = length (filter (hasPiece TwoPiece) allPlacements) == 4
+prop_placements_three = length (filter (hasPiece ThreePiece) allPlacements) == 6
+prop_placements_crookedThree = length (filter (hasPiece CrookedThree) allPlacements) == 12
 
 prop_legalCorners_noOverlap xs = all (\(PieceCorner x y _) -> not $ elem (x,y) xs) (legalCorners xs)
 prop_legalCorners_unique xs = (legalCorners xs) == (nub $ legalCorners xs)
 prop_legalCorners_corners xs = all (\(PieceCorner x y _) -> any (\(i,j) -> (abs(x-i) == 1) && (abs(y-j) == 1)) xs) (legalCorners xs)
 
--- TODO move to utils?
-bitsSet :: Word64 -> Word64
-bitsSet 0 = 0
-bitsSet v | v > 0 = ((Bits..&.) v 1) + (bitsSet $ Bits.shift v (-1))
-
-prop_toBitmap_bitsSet = all correct_number_bits_set $ concat $ map getPlacements allPieces
-    where correct_number_bits_set xs = (fromIntegral $ bitsSet $ toBitmap xs) == length xs
+prop_toBitmap_bitsSet =
+    let allOffsets = map (\(Placement _ offsets _ _) -> offsets) allPlacements
+        number_bits_set offsets = fromIntegral $ bitsSet $ toBitmap offsets
+        correct_number_bits_set offsets = number_bits_set offsets == length offsets
+    in all correct_number_bits_set allOffsets
 
 coords :: Gen (Coord,Coord)
-coords = do 
+coords = do
     x <- elements [0..boardSize-1]
     y <- elements [0..boardSize-1]
     return (x,y)
