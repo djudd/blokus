@@ -3,6 +3,7 @@ module Board (
     Player,
     Coord,
     assign,
+    setOwner,
     getOwner,
     hasOwner,
     boardSize,
