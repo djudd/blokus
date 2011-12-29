@@ -1,7 +1,10 @@
-module Piece (
+module Placement (
+    initialPlacements,
+    getPlacementsAfterMove,
+    -- below here visible only for testing
     allPlacements,
     hasPiece,
-    legalCorners -- for testing only
+    legalCorners
 ) where
 
 import Data.Int
@@ -9,8 +12,8 @@ import Data.List
 import Test.QuickCheck
 
 import Types
-import Utils
 import Offset
+import Utils
 
 getOffsets OnePiece = []
 getOffsets TwoPiece = [(0,1)]
@@ -55,3 +58,12 @@ allPieces = [minBound..maxBound] :: [Piece]
 allPlacements = [buildPlacement piece offsets | piece <- allPieces, offsets <- (getPlacements piece)]
 
 hasPiece piece (Placement p _ _ _) = piece == p
+
+initialPlacements = take numPlayers $ repeat allPlacements
+
+getPlacementsAfterMove :: Move -> [[Placement]] -> [[Placement]]
+getPlacementsAfterMove (Move player x y (Placement piece _ _ _)) placements =
+    let moverPlacements = placements !! (fromIntegral player)
+        moverPlacements' = filter (not . (hasPiece piece)) moverPlacements
+     in replaceAt (fromIntegral player) placements moverPlacements'
+

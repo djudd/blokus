@@ -8,7 +8,7 @@ import Data.Int
 import qualified Data.Bits as Bits
 
 import Types
-import Piece
+import Placement
 import Board
 import Corner
 import Offset
@@ -35,6 +35,8 @@ coords = do
     y <- elements [0..boardSize-1]
     return (x,y)
 
-prop_assign_setsOwner = forAll coords $ \(x,y) -> 1 == getOwner (assign 1 x y [(0,0)] emptyBoard) x y
+prop_getBoardAfterMove_setsOwner =
+    let makeMove x y = getBoardAfterMove emptyBoard (Move 1 x y (Placement OnePiece [(0,0)] [] 0))
+    in forAll coords $ \(x,y) -> not $ unowned (makeMove x y) (x, y)
 
 main = $(quickCheckAll)
