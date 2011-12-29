@@ -32,7 +32,12 @@ bitsSet v | v > 0 = ((Bits..&.) v 1) + (bitsSet $ Bits.shift v (-1))
 prop_toBitmap_bitsSet = all correct_number_bits_set $ concat $ map getPlacements allPieces
     where correct_number_bits_set xs = (fromIntegral $ bitsSet $ toBitmap xs) == length xs
 
-prop_setGetOwner_reversable x y = validCoords x y ==> 1 == getOwner (setOwner 1 emptyBoard (x,y)) x y
-    where validCoords x y = (x `elem` [0..boardSize-1]) && (y `elem` [0..boardSize-1]) 
+coords :: Gen (Coord,Coord)
+coords = do 
+    x <- elements [0..boardSize-1]
+    y <- elements [0..boardSize-1]
+    return (x,y)
+
+prop_assign_setsOwner = forAll coords $ \(x,y) -> 1 == getOwner (assign 1 x y [(0,0)] emptyBoard) x y
 
 main = $(quickCheckAll)
