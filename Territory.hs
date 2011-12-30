@@ -10,6 +10,7 @@ import Data.List
 
 import Types
 import Board
+import Player
 import Offset
 import Utils
 
@@ -21,7 +22,7 @@ instance Eq TerritoryCorner where
 getCoords (TerritoryCorner coords _ _) = coords
 
 hasOwner player board coords = (getOwner board coords) == player
-unowned board coords = (getOwner board coords) == 0
+unowned board coords = (getOwner board coords) == None
 
 touchesSide player board (Coords x y)
     | (x < boardBound) && (playerOwns (x+1) y) = True
@@ -57,14 +58,15 @@ getCornersForMovingPlayer player board prevCorners coords addedCorners =
 
 getCornersAfterMove :: Board -> Move -> [[TerritoryCorner]] -> [[TerritoryCorner]]
 getCornersAfterMove boardAfterMove (Move player coords (Placement _ _ addedCorners _)) corners =
-    let moverCorners = corners !! (fromIntegral player - 1)
+    let index = getIndex player
+        moverCorners = corners !! index
         moverCorners' = getCornersForMovingPlayer player boardAfterMove moverCorners coords addedCorners
         remainingCorners = getNotTakenCorners boardAfterMove corners
-     in replaceAt (fromIntegral player - 1) remainingCorners moverCorners'
+     in replaceAt index remainingCorners moverCorners'
 
 initialCorners =
     let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
-     in [(mkCorner 1 0 0 UpperRight),
-         (mkCorner 2 boardBound 0 UpperLeft),
-         (mkCorner 3 boardBound boardBound LowerLeft),
-         (mkCorner 4 0 boardBound LowerRight)]
+     in [(mkCorner Red 0 0 UpperRight),
+         (mkCorner Green boardBound 0 UpperLeft),
+         (mkCorner Yellow boardBound boardBound LowerLeft),
+         (mkCorner Blue 0 boardBound LowerRight)]

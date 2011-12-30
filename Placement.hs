@@ -10,6 +10,7 @@ import Data.Int
 import Data.List
 
 import Types
+import Player
 import Offset
 import Utils
 
@@ -46,6 +47,7 @@ hasPiece piece (Placement p _ _ _) = piece == p
 
 getPlacementsAfterMove :: Move -> [[Placement]] -> [[Placement]]
 getPlacementsAfterMove (Move player _ (Placement piece _ _ _)) placements =
-    let moverPlacements = placements !! (fromIntegral player - 1)
+    let index = getIndex player
+        moverPlacements = placements !! index
         moverPlacements' = filter (not . (hasPiece piece)) moverPlacements
-     in replaceAt (fromIntegral player - 1) placements moverPlacements'
+     in replaceAt index placements moverPlacements'

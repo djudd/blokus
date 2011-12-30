@@ -51,22 +51,22 @@ instance Arbitrary Coords where
         return (Coords x y)
 
 prop_getBoardAfterMove_owner coords =
-    let makeMove coords = getBoardAfterMove emptyBoard (Move 1 coords (Placement OnePiece [] [] 0))
-    in (==1) $ getOwner (makeMove coords) coords
+    let makeMove coords = getBoardAfterMove emptyBoard (Move Red coords (Placement OnePiece [] [] 0))
+    in (==Red) $ getOwner (makeMove coords) coords
 
 prop_getBoardAfterMove_unowned coords = 
-    let makeMove coords = getBoardAfterMove emptyBoard (Move 1 coords (Placement OnePiece [] [] 0))
+    let makeMove coords = getBoardAfterMove emptyBoard (Move Red coords (Placement OnePiece [] [] 0))
         otherCoords = filter (not . (==coords)) $ [(Coords x y) | x <- [0..boardSize-1], y <- [0..boardSize-1]]
-    in all (\owner -> (==1) owner || (==0) owner) $ map ((flip getOwner) coords) $ map makeMove otherCoords
+    in all (\owner -> (==Red) owner || (==None) owner) $ map ((flip getOwner) coords) $ map makeMove otherCoords
     
-boardWithOneMove = getBoardAfterMove emptyBoard (Move 1 (Coords 0 0) (Placement OnePiece [] [] 0))
+boardWithOneMove = getBoardAfterMove emptyBoard (Move Red (Coords 0 0) (Placement OnePiece [] [] 0))
 
-prop_legal_noOverlap = not $ legal 1 boardWithOneMove (Coords 0 0)
-prop_legal_noSides = not $ (legal 1 boardWithOneMove (Coords 0 1)) || (legal 1 boardWithOneMove (Coords 1 0))
-prop_legal_corner = legal 1 boardWithOneMove (Coords 1 1)
-prop_legal_distant = legal 1 boardWithOneMove (Coords (boardSize-1) (boardSize-1))
+prop_legal_noOverlap = not $ legal Red boardWithOneMove (Coords 0 0)
+prop_legal_noSides = not $ (legal Red boardWithOneMove (Coords 0 1)) || (legal Red boardWithOneMove (Coords 1 0))
+prop_legal_corner = legal Red boardWithOneMove (Coords 1 1)
+prop_legal_distant = legal Red boardWithOneMove (Coords (boardSize-1) (boardSize-1))
 
-cornersAfterOneMove = getCornersForMovingPlayer 1 boardWithOneMove [TerritoryCorner (Coords 0 0) UpperRight 0] (Coords 0 0) [PieceCorner (Offsets 1 1) UpperRight]
+cornersAfterOneMove = getCornersForMovingPlayer Red boardWithOneMove [TerritoryCorner (Coords 0 0) UpperRight 0] (Coords 0 0) [PieceCorner (Offsets 1 1) UpperRight]
 
 prop_getCornersForMovingPlayer_simpleCase = cornersAfterOneMove == [TerritoryCorner (Coords 1 1) UpperRight 0]
 

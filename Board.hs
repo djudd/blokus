@@ -11,6 +11,7 @@ import Data.Int
 
 import Types
 import Offset
+import Player
 import Utils
 
 boardBound = boardSize - 1
@@ -24,18 +25,19 @@ emptyBoard :: Board
 emptyBoard = array (0,boardBound) [(i,0) | i <- [0..boardBound]]
 
 getOwner :: Board -> Coords -> Player
-getOwner board (Coords x y) = fromIntegral $ ((board ! x) `div` (5 ^ y)) `mod` 5
+getOwner board (Coords x y) = fromOwnershipFlag $ ((board ! x) `div` (5 ^ y)) `mod` 5
 
 -- TODO this is inefficient as implemented
 setOwner player board (Coords x y) =
-    let updated = (board ! x) + ((5 ^ y) * (fromIntegral player))
+    let updated = (board ! x) + ((5 ^ y) * player)
     in board // [(x, updated)]
 
 toCoords offsets = map (\(x, y) -> (Coords x y)) offsets
 
 assign player (Coords x y) offsets board =
-    let coords = (Coords x y):(toCoords $ translate (x,y) $ fromOffsets offsets)
-    in foldl (setOwner player) board coords
+    let ownershipFlag = getOwnershipFlag player
+        coords = (Coords x y):(toCoords $ translate (x,y) $ fromOffsets offsets)
+    in foldl (setOwner ownershipFlag) board coords
 
 getBoardAfterMove :: Board -> Move -> Board
 getBoardAfterMove board (Move player coords (Placement _ offsets _ _)) =

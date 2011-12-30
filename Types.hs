@@ -10,8 +10,9 @@ numPlayers = 4
 boardSize :: Int8
 boardSize = 20
 
-type Player = Int8
 type Turn = Int8
+
+data Player = None | Red | Green | Yellow | Blue deriving (Show,Eq,Enum,Bounded)
 
 type Coord = Int8
 type Offset = Int8
@@ -19,7 +20,7 @@ type Offset = Int8
 data Coords = Coords Coord Coord deriving (Show)
 data Offsets = Offsets Offset Offset deriving (Show)
 
-data CornerType = UpperRight | LowerRight | UpperLeft | LowerLeft deriving (Show,Eq)
+data CornerType = UpperRight | LowerRight | UpperLeft | LowerLeft deriving (Show,Eq,Enum,Bounded)
 type ValidityBitmap = Word64
 
 data Piece =
