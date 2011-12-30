@@ -94,5 +94,3 @@ getNthGrandChildren n = concatMap getChildren $ getNthGrandChildren (n-1)
 prop_getFirstPlayerSecondMove_nonEmpty = not $ null $ getChildren $ head $ getNthGrandChildren 4
 
 main = $(quickCheckAll)
---main = print $ head $ (\(State _ _ _ placements) -> placements) $ newGame
---main = print $ (\(State _ _ corners placements) -> corners) $ head $ getChildren newGame
