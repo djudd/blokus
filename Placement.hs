@@ -34,7 +34,8 @@ legalCorners offsets =
 getTransformations piece =
     let offsets = fromOffsets $ (Offsets 0 0):(getOffsets piece)
         transformed = concatMap translations $ concatMap rotations $ reflections offsets
-     in map toOffsets $ nub $ map sort transformed
+        removeOrigin offsets = filter (\(x,y) -> not $ (x == 0) && (y == 0)) offsets
+     in map toOffsets $ map removeOrigin $ nub $ map sort transformed
 
 buildPlacement piece offsets = Placement piece offsets (legalCorners offsets) (toBitmap offsets)
 

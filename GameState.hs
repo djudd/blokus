@@ -1,6 +1,8 @@
 module GameState (
     newGame,
-    getChildren
+    getChildren,
+    -- below here visible only for testing
+    legalAt
 ) where
 
 import Data.Bits
@@ -31,7 +33,7 @@ legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ placementBitmap) = (
 
 getChildren (State turn board corners placements) =
     let getMyChild = getChild (State turn board corners placements)
-        mover = currentPlayer turn
-        moverCorners = corners !! (fromIntegral mover)
-        moverPlacements = placements !! (fromIntegral mover)
+        mover = fromIntegral $ currentPlayer turn
+        moverCorners = corners !! (mover - 1)
+        moverPlacements = placements !! (mover - 1)
      in [getMyChild corner placement | corner <- moverCorners, placement <- moverPlacements, legalAt corner placement]

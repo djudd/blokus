@@ -2,7 +2,8 @@ module Territory (
     initialCorners,
     getCornersAfterMove,
     -- below here visible only for testing
-    legal
+    legal,
+    getCornersForMovingPlayer
 ) where
 
 import Data.List
@@ -63,7 +64,7 @@ getCornersAfterMove boardAfterMove (Move player coords (Placement _ _ addedCorne
 
 initialCorners =
     let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
-     in [(mkCorner 0 0 0 UpperRight),
-         (mkCorner 1 boardBound 0 UpperLeft),
-         (mkCorner 2 0 boardBound LowerRight),
-         (mkCorner 3 boardBound boardBound LowerLeft)]
+     in [(mkCorner 1 0 0 UpperRight),
+         (mkCorner 2 boardBound 0 UpperLeft),
+         (mkCorner 3 0 boardBound LowerRight),
+         (mkCorner 4 boardBound boardBound LowerLeft)]

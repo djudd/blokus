@@ -27,8 +27,9 @@ offsetsIdx x y = case x+4 of
     8 -> 40
 
 toBitmap :: [Offsets] -> ValidityBitmap
-toBitmap offsets = foldl setBit' 0 offsets
+toBitmap offsets = foldl setBit' initial offsets
     where setBit' bitmap (Offsets x y) = setBit bitmap $ fromIntegral $ offsetsIdx x y
+          initial = setBit' 0 (Offsets 0 0)
 
 getOffsets piece = toOffsets $ case piece of
     OnePiece -> []
