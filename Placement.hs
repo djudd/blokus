@@ -8,7 +8,6 @@ module Placement (
 
 import Data.Int
 import Data.List
-import Test.QuickCheck
 
 import Types
 import Offset
@@ -28,7 +27,7 @@ corners (Offsets x y) =
      (PieceCorner (Offsets (x-1) (y-1)) LowerLeft)]
 
 legalCorners offsets =
-    let pieceCorners = concatMap corners offsets
+    let pieceCorners = concatMap corners $ (Offsets 0 0):offsets
      in nub $ filter (legal offsets) pieceCorners
 
 getTransformations piece =
@@ -47,6 +46,6 @@ hasPiece piece (Placement p _ _ _) = piece == p
 
 getPlacementsAfterMove :: Move -> [[Placement]] -> [[Placement]]
 getPlacementsAfterMove (Move player _ (Placement piece _ _ _)) placements =
-    let moverPlacements = placements !! (fromIntegral player)
+    let moverPlacements = placements !! (fromIntegral player - 1)
         moverPlacements' = filter (not . (hasPiece piece)) moverPlacements
-     in replaceAt (fromIntegral player) placements moverPlacements'
+     in replaceAt (fromIntegral player - 1) placements moverPlacements'

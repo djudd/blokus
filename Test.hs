@@ -32,7 +32,8 @@ instance Arbitrary Offsets where
 
 prop_legalCorners_noOverlap xs = all (\(PieceCorner (Offsets x y) _) -> not $ elem (Offsets x y) xs) (legalCorners xs)
 prop_legalCorners_unique xs = (legalCorners xs) == (nub $ legalCorners xs)
-prop_legalCorners_corners xs = all (\(PieceCorner (Offsets x y) _) -> any (\(Offsets i j) -> (abs(x-i) == 1) && (abs(y-j) == 1)) xs) (legalCorners xs)
+prop_legalCorners_corners xs = all (\(PieceCorner (Offsets x y) _) -> any (\(Offsets i j) -> (abs(x-i) == 1) && (abs(y-j) == 1)) ((Offsets 0 0):xs)) (legalCorners xs)
+prop_legalCorners_one = (==4) $ length $ (\(Placement _ _ corners _) -> corners) $ head $ head initialPlacements
 
 prop_toBitmap_bitsSet =
     let allOffsets = map (\(Placement _ offsets _ _) -> offsets) $ head initialPlacements
@@ -82,6 +83,16 @@ prop_legalAt_all =
      in all legalSomehow $ filter (not . (==XPiece)) allPieces
 
 prop_getChildren_nonEmpty = (>0) $ length $ getChildren newGame
+prop_getChildren_corners_len = (==numPlayers) $ length $ (\(State _ _ corners _) -> corners) $ head $ getChildren newGame
+prop_getChildren_placements_len = (==numPlayers) $ length $ (\(State _ _ _ placements) -> placements) $ head $ getChildren newGame
+prop_getChildren_corners_allNotEmpty = all (not . null) $ (\(State _ _ corners _) -> corners) $ head $ getChildren newGame
+prop_getChildren_placements_allNotEmpty = all (not . null) $ (\(State _ _ _ placements) -> placements) $ head $ getChildren newGame
 
---main = $(quickCheckAll)
-main = print $ take 20 $ concatMap getChildren $ concatMap getChildren $ concatMap getChildren $ getChildren newGame
+getNthGrandChildren 1 = getChildren newGame
+getNthGrandChildren n = concatMap getChildren $ getNthGrandChildren (n-1)
+
+prop_getFirstPlayerSecondMove_nonEmpty = not $ null $ getChildren $ head $ getNthGrandChildren 4
+
+main = $(quickCheckAll)
+--main = print $ head $ (\(State _ _ _ placements) -> placements) $ newGame
+--main = print $ (\(State _ _ corners placements) -> corners) $ head $ getChildren newGame

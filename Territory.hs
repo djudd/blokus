@@ -51,20 +51,20 @@ translateCorner player board (Coords x y) (PieceCorner (Offsets i j) cornerType)
     in TerritoryCorner coords cornerType bitmap
 
 getCornersForMovingPlayer player board prevCorners coords addedCorners =
-    let translated = map (translateCorner player board coords) addedCorners
+    let translated = filter (onBoard . getCoords) $ map (translateCorner player board coords) addedCorners
         legalHere = (legal player board) . getCoords
      in nub $ filter legalHere $ prevCorners ++ translated
 
 getCornersAfterMove :: Board -> Move -> [[TerritoryCorner]] -> [[TerritoryCorner]]
 getCornersAfterMove boardAfterMove (Move player coords (Placement _ _ addedCorners _)) corners =
-    let moverCorners = corners !! (fromIntegral player)
+    let moverCorners = corners !! (fromIntegral player - 1)
         moverCorners' = getCornersForMovingPlayer player boardAfterMove moverCorners coords addedCorners
         remainingCorners = getNotTakenCorners boardAfterMove corners
-     in replaceAt (fromIntegral player) remainingCorners moverCorners'
+     in replaceAt (fromIntegral player - 1) remainingCorners moverCorners'
 
 initialCorners =
     let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
      in [(mkCorner 1 0 0 UpperRight),
          (mkCorner 2 boardBound 0 UpperLeft),
-         (mkCorner 3 0 boardBound LowerRight),
-         (mkCorner 4 boardBound boardBound LowerLeft)]
+         (mkCorner 3 boardBound boardBound LowerLeft),
+         (mkCorner 4 0 boardBound LowerRight)]
