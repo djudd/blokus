@@ -21,9 +21,18 @@ prop_placements_two = length (getTransformations TwoPiece) == 4
 prop_placements_three = length (getTransformations ThreePiece) == 6
 prop_placements_crookedThree = length (getTransformations CrookedThree) == 12
 
-prop_legalCorners_noOverlap xs = all (\(PieceCorner x y _) -> not $ elem (x,y) xs) (legalCorners xs)
+instance Eq Offsets where
+    (Offsets x1 y1) == (Offsets x2 y2) = (x1 == x2) && (y1 == y2)
+
+instance Arbitrary Offsets where
+    arbitrary = do
+        x <- elements [-4..4]
+        y <- elements [-(4-abs(x))..(4-abs(x))]
+        return (Offsets x y)
+
+prop_legalCorners_noOverlap xs = all (\(PieceCorner (Offsets x y) _) -> not $ elem (Offsets x y) xs) (legalCorners xs)
 prop_legalCorners_unique xs = (legalCorners xs) == (nub $ legalCorners xs)
-prop_legalCorners_corners xs = all (\(PieceCorner x y _) -> any (\(i,j) -> (abs(x-i) == 1) && (abs(y-j) == 1)) xs) (legalCorners xs)
+prop_legalCorners_corners xs = all (\(PieceCorner (Offsets x y) _) -> any (\(Offsets i j) -> (abs(x-i) == 1) && (abs(y-j) == 1)) xs) (legalCorners xs)
 
 prop_toBitmap_bitsSet =
     let allOffsets = map (\(Placement _ offsets _ _) -> offsets) $ head initialPlacements
@@ -31,26 +40,26 @@ prop_toBitmap_bitsSet =
         correct_number_bits_set offsets = number_bits_set offsets == length offsets
     in all correct_number_bits_set allOffsets
 
-coords :: Gen (Coord,Coord)
-coords = do
-    x <- elements [0..boardSize-1]
-    y <- elements [0..boardSize-1]
-    return (x,y)
+instance Arbitrary Coords where
+    arbitrary = do
+        x <- elements [0..boardSize-1]
+        y <- elements [0..boardSize-1]
+        return (Coords x y)
 
-prop_getBoardAfterMove_owner =
-    let makeMove x y = getBoardAfterMove emptyBoard (Move 1 x y (Placement OnePiece [] [] 0))
-    in forAll coords $ \(x,y) -> (==1) $ getOwner (makeMove x y) x y
+prop_getBoardAfterMove_owner coords =
+    let makeMove coords = getBoardAfterMove emptyBoard (Move 1 coords (Placement OnePiece [] [] 0))
+    in (==1) $ getOwner (makeMove coords) coords
 
-boardWithOneMove = getBoardAfterMove emptyBoard (Move 1 0 0 (Placement OnePiece [] [] 0))
+boardWithOneMove = getBoardAfterMove emptyBoard (Move 1 (Coords 0 0) (Placement OnePiece [] [] 0))
 
-prop_legal_noOverlap = not $ legal 1 boardWithOneMove (0,0)
-prop_legal_noSides = not $ (legal 1 boardWithOneMove (0,1)) || (legal 1 boardWithOneMove (1,0))
-prop_legal_corner = legal 1 boardWithOneMove (1,1)
-prop_legal_distant = legal 1 boardWithOneMove (boardSize-1,boardSize-1)
+prop_legal_noOverlap = not $ legal 1 boardWithOneMove (Coords 0 0)
+prop_legal_noSides = not $ (legal 1 boardWithOneMove (Coords 0 1)) || (legal 1 boardWithOneMove (Coords 1 0))
+prop_legal_corner = legal 1 boardWithOneMove (Coords 1 1)
+prop_legal_distant = legal 1 boardWithOneMove (Coords (boardSize-1) (boardSize-1))
 
 prop_initialPlacements_len = length initialPlacements == numPlayers
 prop_initialCorners_len = length initialCorners == numPlayers
 
---main = $(quickCheckAll)
+main = $(quickCheckAll)
 
-main = print $ getChildren newGame
+--main = print $ getChildren newGame

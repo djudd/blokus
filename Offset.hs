@@ -1,7 +1,9 @@
 module Offset (
     toBitmap,
     getOffsets,
-    getReachableOffsets
+    getReachableOffsets,
+    fromOffsets,
+    toOffsets
 ) where
 
 import Data.Bits hiding (rotate)
@@ -24,37 +26,41 @@ offsetsIdx x y = case x+4 of
     7 -> 37 + (y+1)
     8 -> 40
 
-toBitmap :: [(Offset,Offset)] -> ValidityBitmap
+toBitmap :: [Offsets] -> ValidityBitmap
 toBitmap offsets = foldl setBit' 0 offsets
-    where setBit' bitmap (x,y) = setBit bitmap $ fromIntegral $ offsetsIdx x y
+    where setBit' bitmap (Offsets x y) = setBit bitmap $ fromIntegral $ offsetsIdx x y
 
-getOffsets OnePiece = []
-getOffsets TwoPiece = [(0,1)]
-getOffsets ThreePiece = [(0,1),(0,2)]
-getOffsets CrookedThree = [(0,1),(1,0)]
-getOffsets SquarePiece = [(0,1),(1,0),(1,1)]
-getOffsets ShortI = [(0,1),(0,2),(0,3)]
-getOffsets ShortT = [(0,1),(1,1),(-1,1)]
-getOffsets ShortL = [(0,1),(1,0),(0,2)]
-getOffsets ShortZ = [(0,1),(1,1),(1,2)]
-getOffsets LongI = [(0,1),(0,2),(0,3),(0,4)]
-getOffsets LongT = [(0,1),(0,2),(1,2),(-1,2)]
-getOffsets LongL = [(0,1),(1,0),(0,2),(0,3)]
-getOffsets LongZ = [(0,1),(1,1),(0,-1),(-1,-1)]
-getOffsets PPiece = [(0,1),(1,0),(1,1),(0,2)]
-getOffsets FPiece = [(0,1),(1,0),(0,-1),(-1,-1)]
-getOffsets XPiece = [(0,1),(1,0),(0,-1),(-1,0)]
-getOffsets VPiece = [(0,1),(0,2),(1,0),(2,0)]
-getOffsets UPiece = [(0,1),(0,-1),(1,1),(1,-1)]
-getOffsets YPiece = [(0,1),(1,0),(-1,0),(-2,0)]
-getOffsets NPiece = [(0,1),(1,1),(2,1),(3,1)]
-getOffsets WPiece = [(0,1),(1,1),(-1,0),(-1,-1)]
+getOffsets piece = toOffsets $ case piece of
+    OnePiece -> []
+    TwoPiece -> [(0,1)]
+    ThreePiece -> [(0,1),(0,2)]
+    CrookedThree -> [(0,1),(1,0)]
+    SquarePiece -> [(0,1),(1,0),(1,1)]
+    ShortI -> [(0,1),(0,2),(0,3)]
+    ShortT -> [(0,1),(1,1),(-1,1)]
+    ShortL -> [(0,1),(1,0),(0,2)]
+    ShortZ -> [(0,1),(1,1),(1,2)]
+    LongI -> [(0,1),(0,2),(0,3),(0,4)]
+    LongT -> [(0,1),(0,2),(1,2),(-1,2)]
+    LongL -> [(0,1),(1,0),(0,2),(0,3)]
+    LongZ -> [(0,1),(1,1),(0,-1),(-1,-1)]
+    PPiece -> [(0,1),(1,0),(1,1),(0,2)]
+    FPiece -> [(0,1),(1,0),(0,-1),(-1,-1)]
+    XPiece -> [(0,1),(1,0),(0,-1),(-1,0)]
+    VPiece -> [(0,1),(0,2),(1,0),(2,0)]
+    UPiece -> [(0,1),(0,-1),(1,1),(1,-1)]
+    YPiece -> [(0,1),(1,0),(-1,0),(-2,0)]
+    NPiece -> [(0,1),(1,1),(2,1),(3,1)]
+    WPiece -> [(0,1),(1,1),(-1,0),(-1,-1)]
 
 reachableOffsets :: [(Offset,Offset)]
 reachableOffsets = [(1,-3),(0,-2),(1,-2),(2,-2),(1,-1),(2,-1),(3,-1),(-2,0),(1,0),(2,0),(3,0),(4,0),(-3,1),(-2,1),(-1,1),(0,1),(1,1),(2,1),(3,1),(-2,2),(-1,2),(0,2),(1,2),(2,2),(-1,3),(0,3),(1,3),(0,4)]
 
-getReachableOffsets UpperRight = rotate (1,1) reachableOffsets
-getReachableOffsets UpperLeft = rotate (-1,1) reachableOffsets
-getReachableOffsets LowerRight = rotate (1,-1) reachableOffsets
-getReachableOffsets LowerLeft = rotate (-1,-1) reachableOffsets
+getReachableOffsets cornerType = toOffsets $ case cornerType of
+    UpperRight -> rotate (1,1) reachableOffsets
+    UpperLeft -> rotate (-1,1) reachableOffsets
+    LowerRight -> rotate (1,-1) reachableOffsets
+    LowerLeft -> rotate (-1,-1) reachableOffsets
 
+fromOffsets offsets = map (\(Offsets x y) -> (x,y)) offsets
+toOffsets offsets = map (\(x,y) -> (Offsets x y)) offsets
