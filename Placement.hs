@@ -45,8 +45,8 @@ initialPlacements = take numPlayers $ repeat allPlacements
 
 hasPiece piece (Placement p _ _ _) = piece == p
 
-getPlacementsAfterMove :: Move -> [[Placement]] -> [[Placement]]
-getPlacementsAfterMove (Move player _ (Placement piece _ _ _)) placements =
+getPlacementsAfterMove :: Player -> Move -> [[Placement]] -> [[Placement]]
+getPlacementsAfterMove player (Move _ (Placement piece _ _ _)) placements =
     let index = getIndex player
         moverPlacements = placements !! index
         moverPlacements' = filter (not . (hasPiece piece)) moverPlacements

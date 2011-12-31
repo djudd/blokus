@@ -39,6 +39,6 @@ assign player (Coords x y) offsets board =
         coords = (Coords x y):(toCoords $ translate (x,y) $ fromOffsets offsets)
     in foldl (setOwner ownershipFlag) board coords
 
-getBoardAfterMove :: Board -> Move -> Board
-getBoardAfterMove board (Move player coords (Placement _ offsets _ _)) =
+getBoardAfterMove :: Board -> Player -> Move -> Board
+getBoardAfterMove board player (Move coords (Placement _ offsets _ _)) =
     assign player coords offsets board

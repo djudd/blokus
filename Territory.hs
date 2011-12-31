@@ -56,8 +56,8 @@ getCornersForMovingPlayer player board prevCorners coords addedCorners =
         legalHere = (legal player board) . getCoords
      in nub $ filter legalHere $ prevCorners ++ translated
 
-getCornersAfterMove :: Board -> Move -> [[TerritoryCorner]] -> [[TerritoryCorner]]
-getCornersAfterMove boardAfterMove (Move player coords (Placement _ _ addedCorners _)) corners =
+getCornersAfterMove :: Board -> Player -> Move -> [[TerritoryCorner]] -> [[TerritoryCorner]]
+getCornersAfterMove boardAfterMove player (Move coords (Placement _ _ addedCorners _)) corners =
     let index = getIndex player
         moverCorners = corners !! index
         moverCorners' = getCornersForMovingPlayer player boardAfterMove moverCorners coords addedCorners

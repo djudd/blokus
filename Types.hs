@@ -55,6 +55,6 @@ type Board = Array Int8 Word64
 
 data TerritoryCorner = TerritoryCorner Coords CornerType ValidityBitmap deriving (Show)
 
-data Move = Move Player Coords Placement
+data Move = Move Coords Placement
 
 data GameState = State Turn Board [[TerritoryCorner]] [[Placement]]

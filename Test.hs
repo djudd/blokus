@@ -51,15 +51,15 @@ instance Arbitrary Coords where
         return (Coords x y)
 
 prop_getBoardAfterMove_owner coords =
-    let makeMove coords = getBoardAfterMove emptyBoard (Move Red coords (Placement OnePiece [] [] 0))
+    let makeMove coords = getBoardAfterMove emptyBoard Red (Move coords (Placement OnePiece [] [] 0))
     in (==Red) $ getOwner (makeMove coords) coords
 
 prop_getBoardAfterMove_unowned coords = 
-    let makeMove coords = getBoardAfterMove emptyBoard (Move Red coords (Placement OnePiece [] [] 0))
+    let makeMove coords = getBoardAfterMove emptyBoard Red (Move coords (Placement OnePiece [] [] 0))
         otherCoords = filter (not . (==coords)) $ [(Coords x y) | x <- [0..boardSize-1], y <- [0..boardSize-1]]
     in all (\owner -> (==Red) owner || (==None) owner) $ map ((flip getOwner) coords) $ map makeMove otherCoords
     
-boardWithOneMove = getBoardAfterMove emptyBoard (Move Red (Coords 0 0) (Placement OnePiece [] [] 0))
+boardWithOneMove = getBoardAfterMove emptyBoard Red (Move (Coords 0 0) (Placement OnePiece [] [] 0))
 
 prop_legal_noOverlap = not $ legal Red boardWithOneMove (Coords 0 0)
 prop_legal_noSides = not $ (legal Red boardWithOneMove (Coords 0 1)) || (legal Red boardWithOneMove (Coords 1 0))
