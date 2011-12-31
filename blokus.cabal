@@ -3,14 +3,14 @@ Version:        0.3
 License-file:   LICENSE
 Author:         David Judd <david.a.judd@gmail.com>
 Maintainer:     David Judd <david.a.judd@gmail.com>
-build-depends:  base, array
 build-type:     Simple
 cabal-version:  >= 1.2
 
 Executable blokus
     Main-Is:        Main.hs
+    Build-depends:  base, array
 
 Test-Suite test-blokus
     Type:           exitcode-stdio-1.0
     Main-Is:        Test.hs
-    Build-depends:  base, array, QuickCheck, HUnit
+    Build-depends:  base, array, QuickCheck
