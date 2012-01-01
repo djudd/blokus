@@ -1,6 +1,7 @@
 module Territory (
     initialCorners,
     getCornersAfterMove,
+    getCoords,
     -- below here visible only for testing
     legal,
     getCornersForMovingPlayer

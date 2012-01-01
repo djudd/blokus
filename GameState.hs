@@ -1,12 +1,16 @@
 module GameState (
     newGame,
-    getMoves,
+    getChild,
     getChildren,
+    getCurrentPlayerPieces,
+    getPlayableCorners,
+    getPlayablePlacements,
     -- below here visible only for testing
     legalAt
 ) where
 
 import Data.Bits
+import Data.List
 
 import Types
 import Player
@@ -24,11 +28,10 @@ legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ placementBitmap) = (
 getMove (TerritoryCorner coords _ _) placement = Move coords placement
 
 getMoves (State turn board corners placements) =
-    let mover = fromTurn turn
-        moverIndex = getIndex $ mover
-        moverCorners = corners !! moverIndex
-        moverPlacements = placements !! moverIndex
-     in [getMove corner placement | corner <- moverCorners, placement <- moverPlacements, legalAt corner placement]
+    let index = getIndex $ fromTurn turn
+        myCorners = corners !! index
+        myPlacements = placements !! index
+     in [getMove corner placement | corner <- myCorners, placement <- myPlacements, legalAt corner placement]
 
 getChild (State turn board corners placements) move =
     let player = fromTurn turn
@@ -40,4 +43,23 @@ getChild (State turn board corners placements) move =
 
 getChildren state = map (getChild state) (getMoves state)
 
+getCurrentPlayerPlacements (State turn _ _ placements) = 
+    placements !! (getIndex $ fromTurn turn)
 
+getCurrentPlayerPieces state = 
+    nub $ map getPiece $ getCurrentPlayerPlacements state 
+
+getCurrentPlayerPiecePlacements piece state = 
+    filter (hasPiece piece) (getCurrentPlayerPlacements state)
+
+getCurrentPlayerCorners (State turn _ corners _) =
+    corners !! (getIndex $ fromTurn turn)
+
+getPlayableCorners piece state =
+    let myCorners = getCurrentPlayerCorners state
+        playable corner = any (legalAt corner) (getCurrentPlayerPiecePlacements piece state)
+     in filter playable myCorners
+
+getPlayablePlacements corner piece state =
+    let piecePlacements = getCurrentPlayerPiecePlacements piece state
+     in filter (legalAt corner) piecePlacements

@@ -1,9 +1,12 @@
 module Placement (
     initialPlacements,
     getPlacementsAfterMove,
+    getPiece,
+    hasPiece,
+    getPlacementOffsets,
     -- below here visible only for testing
     getTransformations,
-    legalCorners
+    legalCorners,
 ) where
 
 import Data.Int
@@ -43,7 +46,10 @@ allPieces = [minBound..maxBound] :: [Piece]
 allPlacements = [buildPlacement piece offsets | piece <- allPieces, offsets <- (getTransformations piece)]
 initialPlacements = take numPlayers $ repeat allPlacements
 
-hasPiece piece (Placement p _ _ _) = piece == p
+getPiece (Placement piece _ _ _) = piece
+hasPiece piece placement = piece == (getPiece placement)
+
+getPlacementOffsets (Placement _ offsets _ _) = offsets
 
 getPlacementsAfterMove :: Player -> Move -> [[Placement]] -> [[Placement]]
 getPlacementsAfterMove player (Move _ (Placement piece _ _ _)) placements =
