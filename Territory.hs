@@ -18,7 +18,7 @@ import Utils
 boardBound = boardSize - 1
 
 instance Show TerritoryCorner where
-    show (TerritoryCorner (Coords x y) _ _) = (show x) ++ " " ++ (show y)
+    show (TerritoryCorner (Coords x y) _ _) = (show x) ++ "," ++ (show y)
 
 instance Eq TerritoryCorner where
     (TerritoryCorner (Coords x1 y1) _ _) == (TerritoryCorner (Coords x2 y2) _ _) = (x1 == x2) && (y1 == y2)

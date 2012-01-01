@@ -17,10 +17,20 @@ import Offset
 import Utils
 
 instance Show Placement where
-    show = \(Placement _ offsets _ _) -> show offsets
+    show (Placement _ offsets _ _) =
+        let char x y =
+                if x == 0 && y == 0 then 'x'
+                else if (Offsets x y) `elem` offsets then '.'
+                else ' '
+            showRow x = [char x y | y <- [-4..4]] ++ "\n"
+            rows = map showRow [-4..4]
+         in concat $ [row | row <- rows, ('.' `elem` row) || ('x' `elem` row)]
+
+instance Eq Offsets where
+    (Offsets x1 y1) == (Offsets x2 y2) = (x1 == x2) && (y1 == y2)
 
 instance Eq PieceCorner where
-    (PieceCorner (Offsets x1 y1) _) == (PieceCorner (Offsets x2 y2) _) = (x1 == x2) && (y1 == y2)
+    (PieceCorner o1 _) == (PieceCorner o2 _) = o1 == o2
 
 touchesOn a b = (abs (a-b)) <= 1
 touches x y (Offsets i j) = ((touchesOn x i) && (y == j)) || ((touchesOn y j) && (x == i))

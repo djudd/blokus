@@ -6,15 +6,16 @@ import Placement
 import Territory
 import GameState
 
-getCommand options request parse = do
+getCommand options optionType optionSeparator parse = do
     if (length options) == 1
         then return $ head options
         else do
-            print $ "Enter " ++ request ++ " to play " ++ (show options) ++ ":"
+            let description = concat $ intersperse optionSeparator $ map show options
+            putStr $ "Enter " ++ optionType ++ " to play among:\n" ++ description ++ "\n"
             input <- getLine
             let choice = parse options input
             if isNothing choice
-                then getCommand options request parse
+                then getCommand options optionType optionSeparator parse
                 else return $ fromJust choice
 
 parseByShow options input = 
@@ -31,11 +32,11 @@ parsePiece state options input =
 
 getPlayedPiece state = 
     let pieces = getCurrentPlayerPieces state
-     in getCommand pieces "piece" (parsePiece state)
+     in getCommand pieces "piece" " " (parsePiece state)
 
 getPlayedCorner piece state =
     let corners = getPlayableCorners piece state
-     in getCommand corners "corner" parseByShow
+     in getCommand corners "corner" " " parseByShow
 
 maybeRead = fmap fst . listToMaybe . reads
 
@@ -47,7 +48,7 @@ parsePlacement options input =
 
 getPlayedPlacement corner piece state =
     let placements = getPlayablePlacements corner piece state
-     in getCommand placements "index of placement" parsePlacement
+     in getCommand placements "index of placement" "\n" parsePlacement
 
 confirm state move = do
     print $ getChild state move

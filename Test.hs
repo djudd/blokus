@@ -21,9 +21,6 @@ prop_placements_two = length (getTransformations TwoPiece) == 4
 prop_placements_three = length (getTransformations ThreePiece) == 6
 prop_placements_crookedThree = length (getTransformations CrookedThree) == 12
 
-instance Eq Offsets where
-    (Offsets x1 y1) == (Offsets x2 y2) = (x1 == x2) && (y1 == y2)
-
 instance Arbitrary Offsets where
     arbitrary = do
         x <- elements [-4..4]
