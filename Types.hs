@@ -49,11 +49,11 @@ data Piece =
 
 data PieceCorner = PieceCorner Offsets CornerType deriving (Show)
 
-data Placement = Placement Piece [Offsets] [PieceCorner] ValidityBitmap deriving (Show)
+data Placement = Placement Piece [Offsets] [PieceCorner] ValidityBitmap
 
 type Board = Array Int8 Word64
 
-data TerritoryCorner = TerritoryCorner Coords CornerType ValidityBitmap deriving (Show)
+data TerritoryCorner = TerritoryCorner Coords CornerType ValidityBitmap
 
 data Move = Move Coords Placement
 

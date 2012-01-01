@@ -6,38 +6,48 @@ import Placement
 import Territory
 import GameState
 
-getPlayedPiece state = do
-    let pieces = getCurrentPlayerPieces state
-    print $ "Enter piece to play " ++ (show pieces) ++ ":"
-    pieceName <- getLine
-    let index = elemIndex pieceName $ map show pieces
-    if isNothing index
-        then getPlayedPiece state
+getCommand options request parse = do
+    if (length options) == 1
+        then return $ head options
         else do
-            let piece = pieces !! (fromJust index)
-            if null $ getPlayableCorners piece state
-                then do
-                    print "Piece cannot be played anywhere on this board"
-                    getPlayedPiece state
-                else return piece
+            print $ "Enter " ++ request ++ " to play " ++ (show options) ++ ":"
+            input <- getLine
+            let choice = parse options input
+            if isNothing choice
+                then getCommand options request parse
+                else return $ fromJust choice
 
-getPlayedCorner piece state = do
+parseByShow options input = 
+    case elemIndex input $ map show options of
+        Nothing -> Nothing
+        Just index -> Just $ options !! index
+
+parsePiece state options input =
+    case parseByShow options input of
+        Nothing -> Nothing
+        Just piece -> case getPlayableCorners piece state of
+            [] -> Nothing
+            _ -> Just piece
+
+getPlayedPiece state = 
+    let pieces = getCurrentPlayerPieces state
+     in getCommand pieces "piece" (parsePiece state)
+
+getPlayedCorner piece state =
     let corners = getPlayableCorners piece state
-    print $ "Enter corner to play " ++ (concatMap (show . getCoords) corners) ++ ":"
-    cornerName <- getLine
-    let index = elemIndex cornerName $ map (show . getCoords) corners
-    if isNothing index
-        then getPlayedCorner piece state
-        else return $ corners !! (fromJust index)
+     in getCommand corners "corner" parseByShow
 
-getPlayedPlacement corner piece state = do
+maybeRead = fmap fst . listToMaybe . reads
+
+parsePlacement options input = 
+    let maybeIndex = maybeRead input :: Maybe Int
+     in case maybeIndex of 
+        Nothing -> Nothing
+        Just index -> if index < 0 || index >= (length options) then Nothing else Just $ options !! index
+
+getPlayedPlacement corner piece state =
     let placements = getPlayablePlacements corner piece state
-    print $ "Enter index of placement to play " ++ (concatMap (show . getPlacementOffsets) placements) ++ ":"
-    placementName <- getLine
-    let placementIndex = read placementName :: Int
-    if placementIndex < 0 || placementIndex >= (length placements)
-        then getPlayedPlacement corner piece state
-        else return $ placements !! placementIndex
+     in getCommand placements "index of placement" parsePlacement
 
 confirm state move = do
     print $ getChild state move
@@ -48,7 +58,6 @@ confirm state move = do
         else getNextMove state
 
 getNextMove state = do
-    let pieces = getCurrentPlayerPieces state
     print state
     piece <- getPlayedPiece state
     corner <- getPlayedCorner piece state

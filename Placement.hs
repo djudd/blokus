@@ -3,7 +3,6 @@ module Placement (
     getPlacementsAfterMove,
     getPiece,
     hasPiece,
-    getPlacementOffsets,
     -- below here visible only for testing
     getTransformations,
     legalCorners,
@@ -17,8 +16,11 @@ import Player
 import Offset
 import Utils
 
+instance Show Placement where
+    show = \(Placement _ offsets _ _) -> show offsets
+
 instance Eq PieceCorner where
-    (PieceCorner (Offsets x1 y1) d1) == (PieceCorner (Offsets x2 y2) d2) = (x1 == x2) && (y1 == y2) && (d1 == d2)
+    (PieceCorner (Offsets x1 y1) _) == (PieceCorner (Offsets x2 y2) _) = (x1 == x2) && (y1 == y2)
 
 touchesOn a b = (abs (a-b)) <= 1
 touches x y (Offsets i j) = ((touchesOn x i) && (y == j)) || ((touchesOn y j) && (x == i))
