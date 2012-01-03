@@ -1,5 +1,5 @@
 import Cmdline
 import GameState
 
-main = getNextMoveIfAny newGame
+main = print $ length $ concatMap getChildren $ concatMap getChildren $ concatMap getChildren $ getChildren newGame
     

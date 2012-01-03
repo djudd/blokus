@@ -7,8 +7,10 @@ build-type:     Simple
 cabal-version:  >= 1.2
 
 Executable blokus
-    Main-Is:        Main.hs
-    Build-depends:  base, array
+    Main-Is:            Main.hs
+    Build-depends:      base, array
+    ghc-options:        -O2
+    ghc-prof-options:   -rtsopts -auto-all -caf-all -fforce-recomp
 
 Test-Suite test-blokus
     Type:           exitcode-stdio-1.0

@@ -1,2 +1,6 @@
-dist
-.*\.swp
+^dist$
+^.*\.swp$
+^blokus$
+^blokus.hp$
+^blokus.prof$
+^blokus.summary$
