@@ -10,8 +10,8 @@ import Placement
 import Territory
 import GameState
 
-getCommand options optionType optionSeparator parse = do
-    if (length options) == 1
+getCommand options optionType optionSeparator parse =
+    if length options == 1
         then return $ head options
         else do
             let description = concat $ intersperse optionSeparator $ map show options
@@ -40,7 +40,7 @@ parsePlacement options input =
     let maybeIndex = maybeRead input :: Maybe Int
      in case maybeIndex of 
         Nothing -> Nothing
-        Just index -> if index < 0 || index >= (length options) then Nothing else Just $ options !! index
+        Just index -> if index < 0 || index >= length options then Nothing else Just $ options !! index
 
 getPlayedPiece state = 
     let pieces = getCurrentPlayerPieces state
@@ -71,7 +71,7 @@ getNextMove state = do
     child <- confirm state move
     getNextMoveIfAny child
 
-getNextMoveIfAny state = do
+getNextMoveIfAny state =
     if null $ getChildren state
         then return state
         else getNextMove state

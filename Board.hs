@@ -20,7 +20,7 @@ showBoard board =
     let abbreviate owner = if owner == None then '.' else head $ show owner
         cellChar x y = abbreviate $ getOwner board (Coords x y)
         showRow x = [cellChar x y | y <- [0..boardBound]] ++ "\n"
-    in (concat $ [showRow x | x <- [0..boardBound]])
+    in concat [showRow x | x <- [0..boardBound]]
 
 emptyBoard :: Board
 emptyBoard = array (0,boardBound) [(i,0) | i <- [0..boardBound]]
@@ -33,11 +33,11 @@ setOwner player board (Coords x y) =
     let updated = (board ! x) + ((5 ^ y) * player)
     in board // [(x, updated)]
 
-toCoords offsets = map (\(x, y) -> (Coords x y)) offsets
+toCoords = map (uncurry Coords)
 
 assign player (Coords x y) offsets board =
     let ownershipFlag = getOwnershipFlag player
-        coords = (Coords x y):(toCoords $ translate (x,y) $ fromOffsets offsets)
+        coords = Coords x y:toCoords (translate (x,y) $ fromOffsets offsets)
     in foldl (setOwner ownershipFlag) board coords
 
 getBoardAfterMove :: Board -> Player -> Move -> Board

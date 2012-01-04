@@ -18,34 +18,34 @@ import Utils
 boardBound = boardSize - 1
 
 instance Show TerritoryCorner where
-    show (TerritoryCorner (Coords x y) _ _) = (show x) ++ "," ++ (show y)
+    show (TerritoryCorner (Coords x y) _ _) = show x ++ "," ++ show y
 
 instance Eq TerritoryCorner where
     (TerritoryCorner (Coords x1 y1) _ _) == (TerritoryCorner (Coords x2 y2) _ _) = (x1 == x2) && (y1 == y2)
 
 getCoords (TerritoryCorner coords _ _) = coords
 
-hasOwner player board coords = (getOwner board coords) == player
-unowned board coords = (getOwner board coords) == None
+hasOwner player board coords = getOwner board coords == player
+unowned board coords = getOwner board coords == None
 
 touchesSide player board (Coords x y)
-    | (x < boardBound) && (playerOwns (x+1) y) = True
-    | (x > 0) && (playerOwns (x-1) y) = True
-    | (y < boardBound) && (playerOwns x (y+1)) = True
-    | (y > 0) && (playerOwns x (y-1)) = True
-    | otherwise = False
+    | x < boardBound && playerOwns (x+1) y  = True
+    | x > 0 && playerOwns (x-1) y           = True
+    | y < boardBound && playerOwns x (y+1)  = True
+    | y > 0 && playerOwns x (y-1)           = True
+    | otherwise                             = False
     where playerOwns i j = hasOwner player board (Coords i j)
 
-legal player board coords = (unowned board coords) && (not $ touchesSide player board coords)
+legal player board coords = unowned board coords && not (touchesSide player board coords)
 
 onBoard (Coords x y) = (x >= 0) && (x < boardSize) && (y >= 0) && (y < boardSize)
 
-getNotTakenCorners board corners =
-    map (filter $ (unowned board) . getCoords) corners
+getNotTakenCorners board =
+    map (filter $ unowned board . getCoords)
 
 validOffset player board (Coords x y) (Offsets i j) =
     let coords = Coords (x+i) (y+j)
-    in (onBoard coords) && (legal player board coords)
+    in onBoard coords && legal player board coords
 
 calculateValidityBitmap player board coords cornerType =
     toBitmap $ filter (validOffset player board coords) $ getReachableOffsets cornerType
@@ -57,7 +57,7 @@ translateCorner player board (Coords x y) (PieceCorner (Offsets i j) cornerType)
 
 getCornersForMovingPlayer player board prevCorners coords addedCorners =
     let translated = filter (onBoard . getCoords) $ map (translateCorner player board coords) addedCorners
-        legalHere = (legal player board) . getCoords
+        legalHere = legal player board . getCoords
      in nub $ filter legalHere $ prevCorners ++ translated
 
 getCornersAfterMove :: Board -> Player -> Move -> [[TerritoryCorner]] -> [[TerritoryCorner]]
@@ -70,7 +70,7 @@ getCornersAfterMove boardAfterMove player (Move coords (Placement _ _ addedCorne
 
 initialCorners =
     let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
-     in [(mkCorner Red 0 0 UpperRight),
-         (mkCorner Green boardBound 0 UpperLeft),
-         (mkCorner Yellow boardBound boardBound LowerLeft),
-         (mkCorner Blue 0 boardBound LowerRight)]
+     in [mkCorner Red 0 0 UpperRight,
+         mkCorner Green boardBound 0 UpperLeft,
+         mkCorner Yellow boardBound boardBound LowerLeft,
+         mkCorner Blue 0 boardBound LowerRight]

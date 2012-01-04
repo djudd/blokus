@@ -63,5 +63,5 @@ getReachableOffsets cornerType = toOffsets $ case cornerType of
     LowerRight -> rotate (1,-1) reachableOffsets
     LowerLeft -> rotate (-1,-1) reachableOffsets
 
-fromOffsets offsets = map (\(Offsets x y) -> (x,y)) offsets
-toOffsets offsets = map (\(x,y) -> (Offsets x y)) offsets
+fromOffsets = map (\(Offsets x y) -> (x,y))
+toOffsets = map (uncurry Offsets)

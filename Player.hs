@@ -9,7 +9,7 @@ fromTurn :: Turn -> Player
 fromTurn turn = toEnum $ fromIntegral $ (turn `mod` 4) + 1
 
 getIndex :: Player -> Int
-getIndex player = (fromEnum player) - 1
+getIndex player = fromEnum player - 1
 
 getOwnershipFlag :: Player -> Word64 
 getOwnershipFlag player = fromIntegral $ fromEnum player

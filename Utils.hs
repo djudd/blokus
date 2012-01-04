@@ -18,9 +18,9 @@ translations offsets =
     let all = [translate (-i,-j) offsets | (i,j) <- offsets]
     in filter (elem (0,0)) all
 
-replaceAt index list value = (take index list) ++ [value] ++ (drop (index+1) list)
+replaceAt index list value = take index list ++ [value] ++ drop (index+1) list
 
 bitsSet :: Word64 -> Word64
 bitsSet 0 = 0
-bitsSet v | v > 0 = ((Bits..&.) v 1) + (bitsSet $ Bits.shift v (-1))
+bitsSet v | v > 0 = (Bits..&.) v 1 + bitsSet (Bits.shift v (-1))
 

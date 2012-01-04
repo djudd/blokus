@@ -25,7 +25,7 @@ newGame = State 0 emptyBoard initialCorners initialPlacements
 
 legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ placementBitmap) = (placementBitmap .&. cornerBitmap) == placementBitmap
 
-getMove (TerritoryCorner coords _ _) placement = Move coords placement
+getMove (TerritoryCorner coords _ _) = Move coords
 
 getMoves (State turn board corners placements) =
     let index = getIndex $ fromTurn turn
@@ -44,7 +44,7 @@ getChild (State turn board corners placements) move =
 getChildren state = map (getChild state) (getMoves state)
 
 getCurrentPlayerPlacements (State turn _ _ placements) = 
-    placements !! (getIndex $ fromTurn turn)
+    placements !! getIndex (fromTurn turn)
 
 getCurrentPlayerPieces state = 
     nub $ map getPiece $ getCurrentPlayerPlacements state 
@@ -53,7 +53,7 @@ getCurrentPlayerPiecePlacements piece state =
     filter (hasPiece piece) (getCurrentPlayerPlacements state)
 
 getCurrentPlayerCorners (State turn _ corners _) =
-    corners !! (getIndex $ fromTurn turn)
+    corners !! getIndex (fromTurn turn)
 
 getPlayableCorners piece state =
     let myCorners = getCurrentPlayerCorners state
