@@ -5,6 +5,7 @@ module GameState (
     getCurrentPlayerPieces,
     getPlayableCorners,
     getPlayablePlacements,
+    getPlayerIndex,
     -- below here visible only for testing
     legalAt
 ) where
@@ -42,6 +43,9 @@ getChild (State turn board corners placements) move =
      in State turn' board' corners' placements'
 
 getChildren state = map (getChild state) (getMoves state)
+
+getPlayerIndex (State turn _ _ _) = 
+    getIndex (fromTurn turn)
 
 getCurrentPlayerPlacements (State turn _ _ placements) = 
     placements !! getIndex (fromTurn turn)
