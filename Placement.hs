@@ -63,8 +63,8 @@ hasPiece piece placement = piece == getPiece placement
 
 getPlacementOffsets (Placement _ offsets _ _) = offsets
 
-getPlacementsAfterMove :: Player -> Move -> [[Placement]] -> [[Placement]]
-getPlacementsAfterMove player (Move _ (Placement piece _ _ _)) placements =
+getPlacementsAfterMove :: Player -> Placement -> [[Placement]] -> [[Placement]]
+getPlacementsAfterMove player (Placement piece _ _ _) placements =
     let index = getIndex player
         moverPlacements = placements !! index
         moverPlacements' = filter (not . hasPiece piece) moverPlacements

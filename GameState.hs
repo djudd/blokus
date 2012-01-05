@@ -26,23 +26,20 @@ newGame = State 0 emptyBoard initialCorners initialPlacements
 
 legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ placementBitmap) = (placementBitmap .&. cornerBitmap) == placementBitmap
 
-getMove (TerritoryCorner coords _ _) = Move coords
-
-getMoves (State turn board corners placements) =
-    let index = getIndex $ fromTurn turn
+getChildren (State turn board corners placements) =
+    let index = getIndex (fromTurn turn)
         myCorners = corners !! index
         myPlacements = placements !! index
-     in [getMove corner placement | corner <- myCorners, placement <- myPlacements, legalAt corner placement]
+        getMyChild (TerritoryCorner coords _ _) = getChild (State turn board corners placements) coords
+     in [getMyChild corner placement | corner <- myCorners, placement <- myPlacements, legalAt corner placement]
 
-getChild (State turn board corners placements) move =
+getChild (State turn board corners placements) coords placement =
     let player = fromTurn turn
         turn' = turn + 1
-        board' = getBoardAfterMove board player move
-        corners' = getCornersAfterMove board' player move corners
-        placements' = getPlacementsAfterMove player move placements
+        board' = getBoardAfterMove board player coords placement
+        corners' = getCornersAfterMove board' player coords placement corners
+        placements' = getPlacementsAfterMove player placement placements
      in State turn' board' corners' placements'
-
-getChildren state = map (getChild state) (getMoves state)
 
 getPlayerIndex (State turn _ _ _) = 
     getIndex (fromTurn turn)

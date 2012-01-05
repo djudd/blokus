@@ -54,12 +54,13 @@ getPlayedPlacement corner piece state =
     let placements = getPlayablePlacements corner piece state
      in getCommand placements "index of placement" "\n" parsePlacement
 
-confirm state move = do
-    print $ getChild state move
+confirm state (Move coords placement) = do
+    let child = getChild state coords placement
+    print child
     print "Is this correct (y/n)?"
     answer <- getLine
     if answer == "y"
-        then return $ getChild state move
+        then return child
         else getNextMove state
 
 getNextMove state = do
