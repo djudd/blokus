@@ -12,15 +12,18 @@ boardSize = 20
 
 type Turn = Int8
 
-data Player = None | Red | Green | Yellow | Blue deriving (Show,Eq,Enum,Bounded)
+newtype Player = Player Int deriving (Eq,Ord,Enum,Bounded,Show)
+(none:red:green:yellow:blue:_) = [Player 0 ..]
 
 type Coord = Int8
 type Offset = Int8
 
-data Coords = Coords Coord Coord deriving (Show)
-data Offsets = Offsets Offset Offset deriving (Show)
+data Coords = Coords !Coord !Coord deriving (Show)
+data Offsets = Offsets !Offset !Offset deriving (Show)
 
-data CornerType = UpperRight | LowerRight | UpperLeft | LowerLeft deriving (Show,Eq,Enum,Bounded)
+newtype CornerType = CornerType Int deriving (Eq,Ord,Enum,Bounded,Show)
+(upperRight:upperLeft:lowerRight:lowerLeft:_) = [CornerType 1 ..]
+
 type ValidityBitmap = Word64
 
 data Piece =
@@ -47,13 +50,13 @@ data Piece =
     WPiece
     deriving (Show,Eq,Enum,Bounded)
 
-data PieceCorner = PieceCorner Offsets CornerType deriving (Show)
+data PieceCorner = PieceCorner !Offsets !CornerType deriving (Show)
 
-data Placement = Placement Piece [Offsets] [PieceCorner] ValidityBitmap
+data Placement = Placement !Piece ![Offsets] ![PieceCorner] !ValidityBitmap
 
 type Board = Array Int8 Word64
 
-data TerritoryCorner = TerritoryCorner Coords CornerType ValidityBitmap
+data TerritoryCorner = TerritoryCorner !Coords !CornerType !ValidityBitmap
 
 data Move = Move Coords Placement
 

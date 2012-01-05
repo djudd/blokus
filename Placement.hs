@@ -37,10 +37,10 @@ touches x y (Offsets i j) = (touchesOn x i && (y == j)) || (touchesOn y j && (x 
 legal offsets (PieceCorner (Offsets x y) _) = not $ any (touches x y) offsets
 
 corners (Offsets x y) =
-    [PieceCorner (Offsets (x+1) (y+1)) UpperRight,
-     PieceCorner (Offsets (x+1) (y-1)) LowerRight,
-     PieceCorner (Offsets (x-1) (y+1)) UpperLeft,
-     PieceCorner (Offsets (x-1) (y-1)) LowerLeft]
+    [PieceCorner (Offsets (x+1) (y+1)) upperRight,
+     PieceCorner (Offsets (x+1) (y-1)) lowerRight,
+     PieceCorner (Offsets (x-1) (y+1)) upperLeft,
+     PieceCorner (Offsets (x-1) (y-1)) lowerLeft]
 
 legalCorners offsets =
     let pieceCorners = concatMap corners $ Offsets 0 0:offsets

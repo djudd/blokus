@@ -26,7 +26,7 @@ instance Eq TerritoryCorner where
 getCoords (TerritoryCorner coords _ _) = coords
 
 hasOwner player board coords = getOwner board coords == player
-unowned board coords = getOwner board coords == None
+unowned board coords = getOwner board coords == none
 
 touchesSide player board (Coords x y)
     | x < boardBound && playerOwns (x+1) y  = True
@@ -70,7 +70,7 @@ getCornersAfterMove boardAfterMove player coords (Placement _ _ addedCorners _) 
 
 initialCorners =
     let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
-     in [mkCorner Red 0 0 UpperRight,
-         mkCorner Green boardBound 0 UpperLeft,
-         mkCorner Yellow boardBound boardBound LowerLeft,
-         mkCorner Blue 0 boardBound LowerRight]
+     in [mkCorner red 0 0 upperRight,
+         mkCorner green boardBound 0 upperLeft,
+         mkCorner yellow boardBound boardBound lowerLeft,
+         mkCorner blue 0 boardBound lowerRight]

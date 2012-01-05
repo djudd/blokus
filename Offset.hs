@@ -57,11 +57,13 @@ getOffsets piece = toOffsets $ case piece of
 reachableOffsets :: [(Offset,Offset)]
 reachableOffsets = [(1,-3),(0,-2),(1,-2),(2,-2),(1,-1),(2,-1),(3,-1),(-2,0),(1,0),(2,0),(3,0),(4,0),(-3,1),(-2,1),(-1,1),(0,1),(1,1),(2,1),(3,1),(-2,2),(-1,2),(0,2),(1,2),(2,2),(-1,3),(0,3),(1,3),(0,4)]
 
-getReachableOffsets cornerType = toOffsets $ case cornerType of
-    UpperRight -> rotate (1,1) reachableOffsets
-    UpperLeft -> rotate (-1,1) reachableOffsets
-    LowerRight -> rotate (1,-1) reachableOffsets
-    LowerLeft -> rotate (-1,-1) reachableOffsets
+rotatedBy directions = toOffsets $ rotate directions reachableOffsets
+
+getReachableOffsets cornerType
+    | cornerType == upperRight  = rotatedBy (1,1)
+    | cornerType == upperLeft   = rotatedBy (-1,1)
+    | cornerType == lowerRight  = rotatedBy (1,-1)
+    | cornerType == lowerLeft   = rotatedBy (-1,-1)
 
 fromOffsets = map (\(Offsets x y) -> (x,y))
 toOffsets = map (uncurry Offsets)

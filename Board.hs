@@ -17,7 +17,7 @@ import Utils
 boardBound = boardSize - 1
 
 showBoard board =
-    let abbreviate owner = if owner == None then '.' else head $ show owner
+    let abbreviate owner = if owner == none then '.' else head $ show owner
         cellChar x y = abbreviate $ getOwner board (Coords x y)
         showRow x = [cellChar x y | y <- [0..boardBound]] ++ "\n"
     in concat [showRow x | x <- [0..boardBound]]
