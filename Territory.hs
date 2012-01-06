@@ -61,7 +61,7 @@ getCornersForMovingPlayer player board prevCorners coords addedCorners =
      in nub $ filter legalHere $ prevCorners ++ translated
 
 getCornersAfterMove :: Board -> Player -> Coords -> Placement -> [[TerritoryCorner]] -> [[TerritoryCorner]]
-getCornersAfterMove boardAfterMove player coords (Placement _ _ addedCorners _) corners =
+getCornersAfterMove boardAfterMove player coords (Placement _ _ _ addedCorners _) corners =
     let index = getIndex player
         moverCorners = corners !! index
         moverCorners' = getCornersForMovingPlayer player boardAfterMove moverCorners coords addedCorners
@@ -70,7 +70,7 @@ getCornersAfterMove boardAfterMove player coords (Placement _ _ addedCorners _) 
 
 initialCorners =
     let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
-     in [mkCorner red 0 0 upperRight,
-         mkCorner green boardBound 0 upperLeft,
-         mkCorner yellow boardBound boardBound lowerLeft,
-         mkCorner blue 0 boardBound lowerRight]
+     in [mkCorner red 0 0 UpperRight,
+         mkCorner green boardBound 0 UpperLeft,
+         mkCorner yellow boardBound boardBound LowerLeft,
+         mkCorner blue 0 boardBound LowerRight]

@@ -9,10 +9,12 @@ cabal-version:  >= 1.2
 Executable blokus
     Main-Is:            Main.hs
     Build-depends:      base, array
-    ghc-options:        -O2 -funbox-strict-fields -XGeneralizedNewtypeDeriving
+    ghc-options:        -O2 -funbox-strict-fields
     ghc-prof-options:   -rtsopts -auto-all -caf-all -fforce-recomp
+    extensions:         GeneralizedNewtypeDeriving
 
 Test-Suite test-blokus
     Type:           exitcode-stdio-1.0
     Main-Is:        Test.hs
     Build-depends:  base, array, QuickCheck
+    extensions:     GeneralizedNewtypeDeriving

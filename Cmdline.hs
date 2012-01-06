@@ -43,15 +43,15 @@ parsePlacement options input =
         Just index -> if index < 0 || index >= length options then Nothing else Just $ options !! index
 
 getPlayedPiece state = 
-    let pieces = getCurrentPlayerPieces state
+    let pieces = getPlayerPieces state
      in getCommand pieces "piece" " " (parsePiece state)
 
 getPlayedCorner piece state =
     let corners = getPlayableCorners piece state
      in getCommand corners "corner" " " parseByShow
 
-getPlayedPlacement corner piece state =
-    let placements = getPlayablePlacements corner piece state
+getPlayedPlacement corner piece =
+    let placements = getPlacementsAt corner piece
      in getCommand placements "index of placement" "\n" parsePlacement
 
 confirm state (Move coords placement) = do
@@ -67,7 +67,7 @@ getNextMove state = do
     print state
     piece <- getPlayedPiece state
     corner <- getPlayedCorner piece state
-    placement <- getPlayedPlacement corner piece state
+    placement <- getPlayedPlacement corner piece
     let move = Move (getCoords corner) placement
     child <- confirm state move
     getNextMoveIfAny child

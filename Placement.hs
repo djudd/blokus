@@ -1,8 +1,6 @@
 module Placement (
-    initialPlacements,
-    getPlacementsAfterMove,
-    getPiece,
-    hasPiece,
+    getPiecesAfterMove,
+    getPlacementsFor,
     -- below here visible only for testing
     getTransformations,
     legalCorners,
@@ -10,6 +8,7 @@ module Placement (
 
 import Data.Int
 import Data.List
+import Data.Maybe
 
 import Types
 import Player
@@ -17,7 +16,7 @@ import Offset
 import Utils
 
 instance Show Placement where
-    show (Placement _ offsets _ _) =
+    show (Placement _ _ offsets _ _) =
         let char x y =
                 if x == 0 && y == 0 then 'x'
                 else if Offsets x y `elem` offsets then '.'
@@ -37,10 +36,10 @@ touches x y (Offsets i j) = (touchesOn x i && (y == j)) || (touchesOn y j && (x 
 legal offsets (PieceCorner (Offsets x y) _) = not $ any (touches x y) offsets
 
 corners (Offsets x y) =
-    [PieceCorner (Offsets (x+1) (y+1)) upperRight,
-     PieceCorner (Offsets (x+1) (y-1)) lowerRight,
-     PieceCorner (Offsets (x-1) (y+1)) upperLeft,
-     PieceCorner (Offsets (x-1) (y-1)) lowerLeft]
+    [PieceCorner (Offsets (x+1) (y+1)) UpperRight,
+     PieceCorner (Offsets (x+1) (y-1)) LowerRight,
+     PieceCorner (Offsets (x-1) (y+1)) UpperLeft,
+     PieceCorner (Offsets (x-1) (y-1)) LowerLeft]
 
 legalCorners offsets =
     let pieceCorners = concatMap corners $ Offsets 0 0:offsets
@@ -49,23 +48,27 @@ legalCorners offsets =
 getTransformations piece =
     let offsets = fromOffsets $ Offsets 0 0:getOffsets piece
         transformed = concatMap translations $ concatMap rotations $ reflections offsets
-        removeOrigin = filter (\(x,y) -> not $ (x == 0) && (y == 0))
+        removeOrigin = filter (\(x,y) -> (x /= 0) || (y /= 0))
      in map (toOffsets . removeOrigin) $ nub $ map sort transformed
 
-buildPlacement piece offsets = Placement piece offsets (legalCorners offsets) (toBitmap offsets)
+allReachableAt offsets cornerType = 
+    let reachable = getReachableOffsets cornerType
+     in all (`elem` reachable) offsets
 
-allPieces = [minBound..maxBound] :: [Piece]
-allPlacements = [buildPlacement piece offsets | piece <- allPieces, offsets <- getTransformations piece]
-initialPlacements = replicate numPlayers allPlacements
+getOrigins offsets = filter (allReachableAt offsets) allCornerTypes 
 
-getPiece (Placement piece _ _ _) = piece
-hasPiece piece placement = piece == getPiece placement
+buildPlacements piece offsets = [Placement piece origin offsets (legalCorners offsets) (toBitmap offsets) | origin <- getOrigins offsets]
 
-getPlacementOffsets (Placement _ offsets _ _) = offsets
+allPlacements = concat [buildPlacements piece offsets | piece <- allPieces, offsets <- getTransformations piece]
 
-getPlacementsAfterMove :: Player -> Placement -> [[Placement]] -> [[Placement]]
-getPlacementsAfterMove player (Placement piece _ _ _) placements =
+-- TODO very inefficient
+getPlacementsFor cornerType piece = 
+    filter (\(Placement piece' cornerType' _ _ _) -> (piece == piece') && (cornerType == cornerType')) allPlacements
+
+getPlacementOffsets (Placement _ _ offsets _ _) = offsets
+
+getPiecesAfterMove player (Placement piece _ _ _ _) pieces =
     let index = getIndex player
-        moverPlacements = placements !! index
-        moverPlacements' = filter (not . hasPiece piece) moverPlacements
-     in replaceAt index placements moverPlacements'
+        moverPieces = pieces !! index
+        moverPieces' = filter (/= piece) moverPieces
+     in replaceAt index pieces moverPieces'

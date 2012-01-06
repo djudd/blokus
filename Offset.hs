@@ -59,11 +59,10 @@ reachableOffsets = [(1,-3),(0,-2),(1,-2),(2,-2),(1,-1),(2,-1),(3,-1),(-2,0),(1,0
 
 rotatedBy directions = toOffsets $ rotate directions reachableOffsets
 
-getReachableOffsets cornerType
-    | cornerType == upperRight  = rotatedBy (1,1)
-    | cornerType == upperLeft   = rotatedBy (-1,1)
-    | cornerType == lowerRight  = rotatedBy (1,-1)
-    | cornerType == lowerLeft   = rotatedBy (-1,-1)
+getReachableOffsets UpperRight = rotatedBy (1,1)
+getReachableOffsets UpperLeft = rotatedBy (-1,1)
+getReachableOffsets LowerRight = rotatedBy (1,-1)
+getReachableOffsets LowerLeft = rotatedBy (-1,-1)
 
 fromOffsets = map (\(Offsets x y) -> (x,y))
 toOffsets = map (uncurry Offsets)

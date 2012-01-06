@@ -16,6 +16,8 @@ import Offset
 import GameState
 import Utils
 
+import System.Exit
+
 prop_placements_one = length (getTransformations OnePiece) == 1
 prop_placements_two = length (getTransformations TwoPiece) == 4
 prop_placements_three = length (getTransformations ThreePiece) == 6
@@ -30,10 +32,20 @@ instance Arbitrary Offsets where
 prop_legalCorners_noOverlap xs = all (\(PieceCorner (Offsets x y) _) -> notElem (Offsets x y) xs) (legalCorners xs)
 prop_legalCorners_unique xs = legalCorners xs == nub (legalCorners xs)
 prop_legalCorners_corners xs = all (\(PieceCorner (Offsets x y) _) -> any (\(Offsets i j) -> (abs(x-i) == 1) && (abs(y-j) == 1)) (Offsets 0 0:xs)) (legalCorners xs)
-prop_legalCorners_one = (==4) $ length $ (\(Placement _ _ corners _) -> corners) $ head $ head initialPlacements
+prop_legalCorners_one = (==4) $ length $ (\(Placement _ _ _ corners _) -> corners) $ head $ getPlacementsFor UpperRight OnePiece
+
+nonXPieces = filter (/= XPiece) allPieces
+
+prop_getPlacementsFor_neverNull = 
+    let playableAt corner piece = not $ null $ getPlacementsFor corner piece
+        allPlayableAt corner = all (playableAt corner) allPieces
+     in all allPlayableAt allCornerTypes
+
+allPlacementsFor cornerType = concatMap (getPlacementsFor cornerType) allPieces
+allPlacements = concatMap allPlacementsFor allCornerTypes
 
 prop_toBitmap_bitsSet =
-    let allOffsets = map (\(Placement _ offsets _ _) -> offsets) $ head initialPlacements
+    let allOffsets = map (\(Placement _ _ offsets _ _) -> offsets) $ allPlacements
         number_bits_set offsets = fromIntegral $ bitsSet $ toBitmap offsets
         correct_number_bits_set offsets = number_bits_set offsets == length offsets + 1
     in all correct_number_bits_set allOffsets
@@ -48,36 +60,34 @@ instance Arbitrary Coords where
         return (Coords x y)
 
 prop_getBoardAfterMove_owner coords =
-    let makeMove coords = getBoardAfterMove emptyBoard Red (Move coords (Placement OnePiece [] [] 0))
-    in (==Red) $ getOwner (makeMove coords) coords
+    let makeMove coords = getBoardAfterMove emptyBoard red coords (Placement OnePiece UpperRight [] [] 0)
+    in (==red) $ getOwner (makeMove coords) coords
 
 prop_getBoardAfterMove_unowned coords = 
-    let makeMove coords = getBoardAfterMove emptyBoard Red (Move coords (Placement OnePiece [] [] 0))
+    let makeMove coords = getBoardAfterMove emptyBoard red coords (Placement OnePiece UpperRight [] [] 0)
         otherCoords = filter (not . (==coords)) [Coords x y | x <- [0..boardSize-1], y <- [0..boardSize-1]]
-    in all (\owner -> (==Red) owner || (==None) owner) $ map ((`getOwner` coords) . makeMove) otherCoords
+    in all (\owner -> (==red) owner || (==none) owner) $ map ((`getOwner` coords) . makeMove) otherCoords
     
-boardWithOneMove = getBoardAfterMove emptyBoard Red (Move (Coords 0 0) (Placement OnePiece [] [] 0))
+boardWithOneMove = getBoardAfterMove emptyBoard red (Coords 0 0) (Placement OnePiece UpperRight [] [] 0)
 
-prop_legal_noOverlap = not $ legal Red boardWithOneMove (Coords 0 0)
-prop_legal_noSides = not $ legal Red boardWithOneMove (Coords 0 1) || legal Red boardWithOneMove (Coords 1 0)
-prop_legal_corner = legal Red boardWithOneMove (Coords 1 1)
-prop_legal_distant = legal Red boardWithOneMove (Coords (boardSize-1) (boardSize-1))
+prop_legal_noOverlap = not $ legal red boardWithOneMove (Coords 0 0)
+prop_legal_noSides = not $ legal red boardWithOneMove (Coords 0 1) || legal red boardWithOneMove (Coords 1 0)
+prop_legal_corner = legal red boardWithOneMove (Coords 1 1)
+prop_legal_distant = legal red boardWithOneMove (Coords (boardSize-1) (boardSize-1))
 
-cornersAfterOneMove = getCornersForMovingPlayer Red boardWithOneMove [TerritoryCorner (Coords 0 0) UpperRight 0] (Coords 0 0) [PieceCorner (Offsets 1 1) UpperRight]
+cornersAfterOneMove = getCornersForMovingPlayer red boardWithOneMove [TerritoryCorner (Coords 0 0) UpperRight 0] (Coords 0 0) [PieceCorner (Offsets 1 1) UpperRight]
 
 prop_getCornersForMovingPlayer_simpleCase = cornersAfterOneMove == [TerritoryCorner (Coords 1 1) UpperRight 0]
 
-prop_initialPlacements_len = length initialPlacements == numPlayers
 prop_initialCorners_len = length initialCorners == numPlayers
 
-prop_initialPlacements_bitmapGtZero = all (\(Placement _ _ _ bits) -> bits > 0) $ head initialPlacements
+prop_allPlacements_bitmapGtZero = all (\(Placement _ _ _ _ bits) -> bits > 0) allPlacements
 prop_initialCorners_bitmapGtZero = all (\(TerritoryCorner _ _ bits) -> bits > 0) $ concat initialCorners
 
-prop_legalAt_all =
-    let getPlacements piece = filter (\(Placement p _ _ _) -> piece == p) $ head initialPlacements
-        legalSomehow piece = any (legalAt $ head $ head initialCorners) $ getPlacements piece
-        allPieces = [minBound..maxBound] :: [Piece]
-     in all legalSomehow $ filter (not . (==XPiece)) allPieces
+prop_getPlacementsAt_neverNullInitialCorners =
+    let legalSomehow piece corner = not $ null $ getPlacementsAt corner piece
+        legalSomehowEverywhere piece = all (legalSomehow piece) (concat initialCorners)
+     in all legalSomehowEverywhere nonXPieces
 
 prop_getChildren_nonEmpty = (>0) $ length $ getChildren newGame
 prop_getChildren_corners_len = (==numPlayers) $ length $ (\(State _ _ corners _) -> corners) $ head $ getChildren newGame
@@ -90,4 +100,10 @@ getNthGrandChildren n = concatMap getChildren $ getNthGrandChildren (n-1)
 
 prop_getFirstPlayerSecondMove_nonEmpty = not $ null $ getChildren $ head $ getNthGrandChildren 4
 
-main = $(quickCheckAll)
+runTests = $(quickCheckAll)
+
+main = do
+    success <- runTests
+    if success
+        then exitSuccess
+        else exitFailure 

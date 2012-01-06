@@ -36,7 +36,7 @@ setOwner player board (Coords x y) =
 toCoords = map (uncurry Coords)
 
 getBoardAfterMove :: Board -> Player -> Coords -> Placement -> Board
-getBoardAfterMove board player (Coords x y) (Placement _ offsets _ _) =
+getBoardAfterMove board player (Coords x y) (Placement _ _ offsets _ _) =
    let setOwner' = setOwner (getOwnershipFlag player)
        coords = Coords x y:toCoords (translate (x,y) $ fromOffsets offsets)
    in foldl setOwner' board coords

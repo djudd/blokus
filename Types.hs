@@ -21,8 +21,9 @@ type Offset = Int8
 data Coords = Coords !Coord !Coord deriving (Show)
 data Offsets = Offsets !Offset !Offset deriving (Show)
 
-newtype CornerType = CornerType Int deriving (Eq,Ord,Enum,Bounded,Show)
-(upperRight:upperLeft:lowerRight:lowerLeft:_) = [CornerType 1 ..]
+data CornerType = UpperRight | UpperLeft | LowerRight | LowerLeft deriving (Eq,Ord,Enum,Bounded,Show)
+
+allCornerTypes = [minBound..maxBound] :: [CornerType]
 
 type ValidityBitmap = Word64
 
@@ -50,9 +51,11 @@ data Piece =
     WPiece
     deriving (Show,Eq,Enum,Bounded)
 
+allPieces = [minBound..maxBound] :: [Piece]
+
 data PieceCorner = PieceCorner !Offsets !CornerType deriving (Show)
 
-data Placement = Placement !Piece ![Offsets] ![PieceCorner] !ValidityBitmap
+data Placement = Placement !Piece !CornerType ![Offsets] ![PieceCorner] !ValidityBitmap
 
 type Board = Array Int8 Word64
 
@@ -60,4 +63,4 @@ data TerritoryCorner = TerritoryCorner !Coords !CornerType !ValidityBitmap
 
 data Move = Move Coords Placement
 
-data GameState = State Turn Board [[TerritoryCorner]] [[Placement]]
+data GameState = State Turn Board [[TerritoryCorner]] [[Piece]]

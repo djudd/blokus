@@ -2,12 +2,11 @@ module GameState (
     newGame,
     getChild,
     getChildren,
-    getCurrentPlayerPieces,
+    --getCurrentPlayerPieces,
     getPlayableCorners,
-    getPlayablePlacements,
+    getPlayerPieces,
+    getPlacementsAt,
     getPlayerIndex,
-    -- below here visible only for testing
-    legalAt
 ) where
 
 import Data.Bits
@@ -22,45 +21,42 @@ import Placement
 instance Show GameState where
     show (State _ board _ _) = showBoard board    
 
-newGame = State 0 emptyBoard initialCorners initialPlacements
+newGame = State 0 emptyBoard initialCorners (replicate numPlayers allPieces)
 
-legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ placementBitmap) = (placementBitmap .&. cornerBitmap) == placementBitmap
+getPlacementsAt (TerritoryCorner coords cornerType bitmap) piece =
+    let legalHere = legalAt (TerritoryCorner coords cornerType bitmap)
+        getPlacementsHere = getPlacementsFor cornerType
+     in [placement | placement <- getPlacementsHere piece, legalHere placement]
 
-getChildren (State turn board corners placements) =
+legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ _ placementBitmap) = 
+    (placementBitmap .&. cornerBitmap) == placementBitmap
+
+getChildren (State turn board corners pieces) =
     let index = getIndex (fromTurn turn)
         myCorners = corners !! index
-        myPlacements = placements !! index
-        getMyChild (TerritoryCorner coords _ _) = getChild (State turn board corners placements) coords
-     in [getMyChild corner placement | corner <- myCorners, placement <- myPlacements, legalAt corner placement]
+        myPieces = pieces !! index
+        getMyChild (TerritoryCorner coords _ _) = getChild (State turn board corners pieces) coords
+     in [getMyChild corner placement | corner <- myCorners, piece <- myPieces, placement <- getPlacementsAt corner piece]
 
-getChild (State turn board corners placements) coords placement =
+getChild (State turn board corners pieces) coords placement =
     let player = fromTurn turn
         turn' = turn + 1
         board' = getBoardAfterMove board player coords placement
         corners' = getCornersAfterMove board' player coords placement corners
-        placements' = getPlacementsAfterMove player placement placements
-     in State turn' board' corners' placements'
+        pieces' = getPiecesAfterMove player placement pieces
+     in State turn' board' corners' pieces'
+
+indexFromTurn = getIndex . fromTurn
 
 getPlayerIndex (State turn _ _ _) = 
-    getIndex (fromTurn turn)
+    indexFromTurn turn
 
-getCurrentPlayerPlacements (State turn _ _ placements) = 
-    placements !! getIndex (fromTurn turn)
+getPlayerPieces (State turn _ _ pieces) =
+    pieces !! indexFromTurn turn
 
-getCurrentPlayerPieces state = 
-    nub $ map getPiece $ getCurrentPlayerPlacements state 
-
-getCurrentPlayerPiecePlacements piece state = 
-    filter (hasPiece piece) (getCurrentPlayerPlacements state)
-
-getCurrentPlayerCorners (State turn _ corners _) =
-    corners !! getIndex (fromTurn turn)
-
-getPlayableCorners piece state =
-    let myCorners = getCurrentPlayerCorners state
-        playable corner = any (legalAt corner) (getCurrentPlayerPiecePlacements piece state)
+getPlayableCorners piece (State turn _ corners pieces) =
+    let myCorners = corners !! indexFromTurn turn
+        myPieces = pieces !! indexFromTurn turn
+        hasPlacementsOf corner = not . null . getPlacementsAt corner
+        playable corner = any (hasPlacementsOf corner) myPieces
      in filter playable myCorners
-
-getPlayablePlacements corner piece state =
-    let piecePlacements = getCurrentPlayerPiecePlacements piece state
-     in filter (legalAt corner) piecePlacements
