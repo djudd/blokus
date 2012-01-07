@@ -83,7 +83,7 @@ placementVector =
      in Vector.fromList grouped
 
 getPlacementsFor cornerType piece = 
-    placementVector Vector.! getKey piece cornerType 
+    placementVector `Vector.unsafeIndex` getKey piece cornerType 
 
 getPlacementOffsets (Placement _ _ offsets _ _) = offsets
 

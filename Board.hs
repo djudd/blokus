@@ -25,7 +25,7 @@ instance Show Board where
 emptyBoard = Board $ Vector.replicate (fromIntegral boardSize) 0
 
 getOwner (Board board) (Coords x y) = 
-    let row = board Vector.! fromIntegral x
+    let row = board `Vector.unsafeIndex` fromIntegral x
         flag = (row `div` (5 ^ y)) `mod` 5 
      in fromOwnershipFlag flag
 
@@ -34,6 +34,6 @@ getBoardAfterMove (Board board) player (Coords x y) (Placement _ _ offsets _ _) 
     let coords = (fromIntegral x,y):[(fromIntegral $ x+i, y+j) | (Offsets i j) <- offsets]
         player' = fromIntegral (fromEnum player)
         accumulate row y = row + ((5 ^ y) * player')
-        board' = Vector.accum accumulate board coords
+        board' = Vector.unsafeAccum accumulate board coords
      in Board board'
             
