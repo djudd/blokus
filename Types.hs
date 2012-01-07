@@ -65,4 +65,4 @@ data TerritoryCorner = TerritoryCorner Coords CornerType ValidityBitmap
 
 data Move = Move Coords Placement
 
-data GameState = State Turn Board [[TerritoryCorner]] [[Piece]]
+data GameState = State !Turn Board [[TerritoryCorner]] [[Piece]]

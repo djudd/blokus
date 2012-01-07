@@ -5,6 +5,7 @@ import Test.QuickCheck.All
 import Data.List
 import Data.Word
 import Data.Int
+import Data.Ord
 import qualified Data.Bits as Bits
 import qualified Data.Vector as Vector
 
@@ -44,11 +45,11 @@ allPlacements =
      in concatMap allPlacementsFor allCornerTypes
 
 prop_placements_vectorLength = Vector.length placementVector == (numPieces * numCorners)
-prop_placements_listAndConcatedVectorLengthsEqual = (length $ concat $ Vector.toList placementVector) == length placementList
+prop_placements_listAndConcatedVectorLengthsEqual = length (concat $ Vector.toList placementVector) == length placementList
 prop_placements_derivedAndListLengthsEqual = length placementList == length allPlacements
 
 prop_toBitmap_bitsSet =
-    let allOffsets = map (\(Placement _ _ offsets _ _) -> offsets) $ allPlacements
+    let allOffsets = map (\(Placement _ _ offsets _ _) -> offsets) allPlacements
         number_bits_set offsets = fromIntegral $ bitsSet $ toBitmap offsets
         correct_number_bits_set offsets = number_bits_set offsets == length offsets + 1
     in all correct_number_bits_set allOffsets
@@ -61,8 +62,8 @@ instance Arbitrary CornerType where
 
 prop_getKey_inRange piece corner = let key = getKey piece corner in key >= 0 && key < Vector.length placementVector
 
-prop_getKey_pieceOrd corner p1 p2 = (compare p1 p2) == (compare (getKey p1 corner) (getKey p2 corner))
-prop_getKey_cornerOrd piece c1 c2 = (compare c1 c2) == (compare (getKey piece c1) (getKey piece c2))
+prop_getKey_pieceOrd corner p1 p2 = compare p1 p2 == comparing (`getKey` corner) p1 p2
+prop_getKey_cornerOrd piece c1 c2 = compare c1 c2 == comparing (getKey piece) c1 c2
 
 instance Eq Coords where
     (Coords x1 y1) == (Coords x2 y2) = (x1 == x2) && (y1 == y2)
@@ -73,7 +74,7 @@ instance Arbitrary Coords where
         y <- elements [0..boardSize-1]
         return (Coords x y)
 
-simplePlacement = (Placement OnePiece UpperRight [] [] 0)
+simplePlacement = Placement OnePiece UpperRight [] [] 0
 
 prop_getBoardAfterMove_owner coords =
     let makeMove coords = getBoardAfterMove emptyBoard red coords simplePlacement
@@ -102,7 +103,7 @@ prop_initialCorners_bitmapGtZero = all (\(TerritoryCorner _ _ bits) -> bits > 0)
 
 prop_getPlacementsAt_initialCorners_lensEqual =
     let allEqual xs = length (nub xs) <= 1
-        initCornersEqual piece = allEqual $ map (length . (flip getPlacementsAt piece)) (map head initialCorners)
+        initCornersEqual piece = allEqual $ map (length . (`getPlacementsAt` piece) . head) initialCorners
      in all initCornersEqual allPieces
 
 prop_getPlacementsAt_initialCorners_nonXNeverNull =

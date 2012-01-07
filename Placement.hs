@@ -76,14 +76,14 @@ getKey :: Piece -> CornerType -> Int
 getKey piece cornerType = (fromEnum piece * numCorners) + fromEnum cornerType
 
 placementVector = 
-    let sameKey (Placement p1 c1 _ _ _) (Placement p2 c2 _ _ _) = (getKey p1 c1) == (getKey p2 c2)
+    let sameKey (Placement p1 c1 _ _ _) (Placement p2 c2 _ _ _) = getKey p1 c1 == getKey p2 c2
         compareKeys (Placement p1 c1 _ _ _) (Placement p2 c2 _ _ _) = compare (getKey p1 c1) (getKey p2 c2)
         sorted = sortBy compareKeys placementList
         grouped = groupBy sameKey sorted
      in Vector.fromList grouped
 
 getPlacementsFor cornerType piece = 
-    placementVector Vector.! (getKey piece cornerType) 
+    placementVector Vector.! getKey piece cornerType 
 
 getPlacementOffsets (Placement _ _ offsets _ _) = offsets
 

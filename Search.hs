@@ -11,8 +11,9 @@ minimax :: Int -> GameState -> [Float]
 minimax 0 node      = heuristicScores node
 minimax depth node  = case getChildren node of 
     []          -> finalScores node
-    children    -> maximumBy comparator $ map (minimax (depth-1)) children
-    where comparator a b = compare (a !! i) (b !! i)
+    children    -> {-# SCC "children" #-} maximumBy comparator (recurse children)
+    where recurse = {-# SCC "scoreChildren" #-} map (minimax (depth-1))
+          comparator a b = {-# SCC "compareScores" #-} compare (a !! i) (b !! i)
           i = getPlayerIndex node
 
 heuristicScores node = [0.5, 0.5, 0.5, 0.5]
