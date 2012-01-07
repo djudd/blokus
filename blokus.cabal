@@ -8,7 +8,7 @@ cabal-version:  >= 1.2
 
 Executable blokus
     Main-Is:            Main.hs
-    Build-depends:      base, array
+    Build-depends:      base, vector
     ghc-options:        -O2 -funbox-strict-fields
     ghc-prof-options:   -rtsopts -auto-all -caf-all -fforce-recomp
     extensions:         GeneralizedNewtypeDeriving
@@ -16,5 +16,5 @@ Executable blokus
 Test-Suite test-blokus
     Type:           exitcode-stdio-1.0
     Main-Is:        Test.hs
-    Build-depends:  base, array, QuickCheck
+    Build-depends:  base, vector, QuickCheck
     extensions:     GeneralizedNewtypeDeriving

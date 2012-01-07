@@ -4,11 +4,15 @@ module Placement (
     -- below here visible only for testing
     getTransformations,
     legalCorners,
+    placementList,
+    placementVector,
+    getKey,
 ) where
 
 import Data.Int
 import Data.List
 import Data.Maybe
+import qualified Data.Vector as Vector
 
 import Types
 import Player
@@ -57,13 +61,29 @@ allReachableAt offsets cornerType =
 
 getOrigins offsets = filter (allReachableAt offsets) allCornerTypes 
 
-buildPlacements piece offsets = [Placement piece origin offsets (legalCorners offsets) (toBitmap offsets) | origin <- getOrigins offsets]
+buildPlacement piece origin offsets = Placement piece origin offsets (legalCorners offsets) (toBitmap offsets)
 
-allPlacements = concat [buildPlacements piece offsets | piece <- allPieces, offsets <- getTransformations piece]
+placementList = 
+    [
+        buildPlacement piece origin offsets | 
+        piece <- allPieces, 
+        offsets <- getTransformations piece, 
+        origin <- getOrigins offsets
+    ]
 
--- TODO very inefficient
+-- Make type explicit to prevent compiler from allowing reversed arguments
+getKey :: Piece -> CornerType -> Int
+getKey piece cornerType = (fromEnum piece * numCorners) + fromEnum cornerType
+
+placementVector = 
+    let sameKey (Placement p1 c1 _ _ _) (Placement p2 c2 _ _ _) = (getKey p1 c1) == (getKey p2 c2)
+        compareKeys (Placement p1 c1 _ _ _) (Placement p2 c2 _ _ _) = compare (getKey p1 c1) (getKey p2 c2)
+        sorted = sortBy compareKeys placementList
+        grouped = groupBy sameKey sorted
+     in Vector.fromList grouped
+
 getPlacementsFor cornerType piece = 
-    filter (\(Placement piece' cornerType' _ _ _) -> (piece == piece') && (cornerType == cornerType')) allPlacements
+    placementVector Vector.! (getKey piece cornerType) 
 
 getPlacementOffsets (Placement _ _ offsets _ _) = offsets
 

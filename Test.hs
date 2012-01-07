@@ -5,8 +5,8 @@ import Test.QuickCheck.All
 import Data.List
 import Data.Word
 import Data.Int
-import Data.Array.Unboxed
 import qualified Data.Bits as Bits
+import qualified Data.Vector as Vector
 
 import Types
 import Placement
@@ -34,21 +34,35 @@ prop_legalCorners_unique xs = legalCorners xs == nub (legalCorners xs)
 prop_legalCorners_corners xs = all (\(PieceCorner (Offsets x y) _) -> any (\(Offsets i j) -> (abs(x-i) == 1) && (abs(y-j) == 1)) (Offsets 0 0:xs)) (legalCorners xs)
 prop_legalCorners_one = (==4) $ length $ (\(Placement _ _ _ corners _) -> corners) $ head $ getPlacementsFor UpperRight OnePiece
 
-nonXPieces = filter (/= XPiece) allPieces
-
 prop_getPlacementsFor_neverNull = 
     let playableAt corner piece = not $ null $ getPlacementsFor corner piece
         allPlayableAt corner = all (playableAt corner) allPieces
      in all allPlayableAt allCornerTypes
 
-allPlacementsFor cornerType = concatMap (getPlacementsFor cornerType) allPieces
-allPlacements = concatMap allPlacementsFor allCornerTypes
+allPlacements = 
+    let allPlacementsFor cornerType = concatMap (getPlacementsFor cornerType) allPieces
+     in concatMap allPlacementsFor allCornerTypes
+
+prop_placements_vectorLength = Vector.length placementVector == (numPieces * numCorners)
+prop_placements_listAndConcatedVectorLengthsEqual = (length $ concat $ Vector.toList placementVector) == length placementList
+prop_placements_derivedAndListLengthsEqual = length placementList == length allPlacements
 
 prop_toBitmap_bitsSet =
     let allOffsets = map (\(Placement _ _ offsets _ _) -> offsets) $ allPlacements
         number_bits_set offsets = fromIntegral $ bitsSet $ toBitmap offsets
         correct_number_bits_set offsets = number_bits_set offsets == length offsets + 1
     in all correct_number_bits_set allOffsets
+
+instance Arbitrary Piece where
+    arbitrary = elements allPieces
+
+instance Arbitrary CornerType where
+    arbitrary = elements allCornerTypes
+
+prop_getKey_inRange piece corner = let key = getKey piece corner in key >= 0 && key < Vector.length placementVector
+
+prop_getKey_pieceOrd corner p1 p2 = (compare p1 p2) == (compare (getKey p1 corner) (getKey p2 corner))
+prop_getKey_cornerOrd piece c1 c2 = (compare c1 c2) == (compare (getKey piece c1) (getKey piece c2))
 
 instance Eq Coords where
     (Coords x1 y1) == (Coords x2 y2) = (x1 == x2) && (y1 == y2)
@@ -59,16 +73,18 @@ instance Arbitrary Coords where
         y <- elements [0..boardSize-1]
         return (Coords x y)
 
+simplePlacement = (Placement OnePiece UpperRight [] [] 0)
+
 prop_getBoardAfterMove_owner coords =
-    let makeMove coords = getBoardAfterMove emptyBoard red coords (Placement OnePiece UpperRight [] [] 0)
-    in (==red) $ getOwner (makeMove coords) coords
+    let makeMove coords = getBoardAfterMove emptyBoard red coords simplePlacement
+     in (==red) $ getOwner (makeMove coords) coords
 
 prop_getBoardAfterMove_unowned coords = 
-    let makeMove coords = getBoardAfterMove emptyBoard red coords (Placement OnePiece UpperRight [] [] 0)
+    let makeMove coords = getBoardAfterMove emptyBoard red coords simplePlacement
         otherCoords = filter (not . (==coords)) [Coords x y | x <- [0..boardSize-1], y <- [0..boardSize-1]]
-    in all (\owner -> (==red) owner || (==none) owner) $ map ((`getOwner` coords) . makeMove) otherCoords
+     in all (\owner -> (==red) owner || (==none) owner) $ map ((`getOwner` coords) . makeMove) otherCoords
     
-boardWithOneMove = getBoardAfterMove emptyBoard red (Coords 0 0) (Placement OnePiece UpperRight [] [] 0)
+boardWithOneMove = getBoardAfterMove emptyBoard red (Coords 0 0) simplePlacement
 
 prop_legal_noOverlap = not $ legal red boardWithOneMove (Coords 0 0)
 prop_legal_noSides = not $ legal red boardWithOneMove (Coords 0 1) || legal red boardWithOneMove (Coords 1 0)
@@ -84,8 +100,14 @@ prop_initialCorners_len = length initialCorners == numPlayers
 prop_allPlacements_bitmapGtZero = all (\(Placement _ _ _ _ bits) -> bits > 0) allPlacements
 prop_initialCorners_bitmapGtZero = all (\(TerritoryCorner _ _ bits) -> bits > 0) $ concat initialCorners
 
-prop_getPlacementsAt_neverNullInitialCorners =
-    let legalSomehow piece corner = not $ null $ getPlacementsAt corner piece
+prop_getPlacementsAt_initialCorners_lensEqual =
+    let allEqual xs = length (nub xs) <= 1
+        initCornersEqual piece = allEqual $ map (length . (flip getPlacementsAt piece)) (map head initialCorners)
+     in all initCornersEqual allPieces
+
+prop_getPlacementsAt_initialCorners_nonXNeverNull =
+    let nonXPieces = filter (/= XPiece) allPieces
+        legalSomehow piece corner = not $ null $ getPlacementsAt corner piece
         legalSomehowEverywhere piece = all (legalSomehow piece) (concat initialCorners)
      in all legalSomehowEverywhere nonXPieces
 

@@ -2,7 +2,6 @@ module GameState (
     newGame,
     getChild,
     getChildren,
-    --getCurrentPlayerPieces,
     getPlayableCorners,
     getPlayerPieces,
     getPlacementsAt,
@@ -19,7 +18,7 @@ import Territory
 import Placement
 
 instance Show GameState where
-    show (State _ board _ _) = showBoard board    
+    show (State _ board _ _) = show board    
 
 newGame = State 0 emptyBoard initialCorners (replicate numPlayers allPieces)
 
