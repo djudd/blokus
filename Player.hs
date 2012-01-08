@@ -17,7 +17,7 @@ getOwnershipFlag player = fromIntegral $ fromEnum player
 fromOwnershipFlag :: Word64 -> Player
 fromOwnershipFlag flag = toEnum $ fromIntegral flag
 
-forPlayer player f operands = forPlayerAndRest player f id operands
+forPlayer player f = forPlayerAndRest player f id 
 
 forPlayerAndRest player f g (a, b, c, d)
     | player == red     = (f a, g b, g c, g d)

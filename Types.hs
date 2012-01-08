@@ -25,7 +25,7 @@ data CornerType = UpperRight | UpperLeft | LowerRight | LowerLeft deriving (Eq,O
 allCornerTypes = [minBound..maxBound] :: [CornerType]
 numCorners = length allCornerTypes
 
-type ValidityBitmap = Word64
+type ValidityBitmap = Word32
 
 data Piece =
     OnePiece |

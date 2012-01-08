@@ -20,7 +20,7 @@ import Utils
 
 import System.Exit
 
-getForAllPlayers xs = map (\player -> getPlayers player xs) [red,green,yellow,blue]
+getForAllPlayers xs = map (`getPlayers` xs) [red,green,yellow,blue]
 forAllPlayers f xs = all f (getForAllPlayers xs)
 
 prop_placements_one = length (getTransformations OnePiece) == 1
@@ -54,7 +54,7 @@ prop_placements_derivedAndListLengthsEqual = length placementList == length allP
 
 prop_placements_bitsSet =
     let lengthOffsets (Placement _ _ offsets _ _) = length offsets
-        numberBitsSet (Placement _ _ _ _ bitmap) = fromIntegral (bitsSet bitmap)
+        numberBitsSet (Placement _ _ _ _ bitmap) = bitsSet bitmap
     in all (\placement -> lengthOffsets placement == numberBitsSet placement) allPlacements
 
 instance Arbitrary Piece where

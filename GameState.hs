@@ -36,8 +36,7 @@ getChildren (State turn board corners pieces) =
         getMyChild (TerritoryCorner coords _ _) = getChild (State turn board corners pieces) coords
      in [getMyChild corner placement | corner <- myCorners, piece <- myPieces, placement <- getPlacementsAt corner piece]
 
-getPiecesAfterMove player (Placement piece _ _ _ _) pieces =
-    forPlayer player (filter (/= piece)) pieces
+getPiecesAfterMove player (Placement piece _ _ _ _) = forPlayer player (filter (/= piece))
 
 getChild (State turn board corners pieces) coords placement =
     let player = fromTurn turn

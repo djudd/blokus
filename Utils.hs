@@ -1,4 +1,12 @@
-module Utils where
+module Utils (
+    reflect,
+    reflections,
+    rotate,
+    rotations,
+    translate,
+    translations,
+    bitsSet
+) where
 
 import qualified Data.Bits as Bits
 import Data.Word
@@ -18,9 +26,7 @@ translations offsets =
     let all = [translate (-i,-j) offsets | (i,j) <- offsets]
     in filter (elem (0,0)) all
 
-replaceAt index list value = take index list ++ [value] ++ drop (index+1) list
-
-bitsSet :: Word64 -> Word64
-bitsSet 0 = 0
-bitsSet v | v > 0 = (Bits..&.) v 1 + bitsSet (Bits.shift v (-1))
-
+bitsSet :: Word32 -> Int
+_bitsSet 0 = 0
+_bitsSet v | v > 0 = (Bits..&.) v 1 + _bitsSet (Bits.shift v (-1))
+bitsSet = fromIntegral . _bitsSet
