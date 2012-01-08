@@ -14,13 +14,14 @@ import Data.List
 import Types
 import Player
 import Board
+import Piece
 import Territory
 import Placement
 
 instance Show GameState where
     show (State _ board _ _) = show board    
 
-newGame = State 0 emptyBoard initialCorners (replicate numPlayers allPieces)
+newGame = State 0 emptyBoard initialCorners initialPieces
 
 getPlacementsAt (TerritoryCorner coords cornerType bitmap) piece =
     let legalHere = legalAt (TerritoryCorner coords cornerType bitmap)
@@ -33,7 +34,7 @@ legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ _ placementBitmap) =
 getChildren (State turn board corners pieces) =
     let index = getIndex (fromTurn turn)
         myCorners = corners !! index
-        myPieces = pieces !! index
+        myPieces = iteratePieces (pieces !! index)
         getMyChild (TerritoryCorner coords _ _) = getChild (State turn board corners pieces) coords
      in [getMyChild corner placement | corner <- myCorners, piece <- myPieces, placement <- getPlacementsAt corner piece]
 
@@ -51,11 +52,11 @@ getPlayerIndex (State turn _ _ _) =
     indexFromTurn turn
 
 getPlayerPieces (State turn _ _ pieces) =
-    pieces !! indexFromTurn turn
+    iteratePieces (pieces !! indexFromTurn turn)
 
 getPlayableCorners piece (State turn _ corners pieces) =
     let myCorners = corners !! indexFromTurn turn
-        myPieces = pieces !! indexFromTurn turn
+        myPieces = iteratePieces (pieces !! indexFromTurn turn)
         hasPlacementsOf corner = not . null . getPlacementsAt corner
         playable corner = any (hasPlacementsOf corner) myPieces
      in filter playable myCorners

@@ -1,7 +1,13 @@
+{-# LANGUAGE ForeignFunctionInterface #-}
+
 module Utils where
 
 import qualified Data.Bits as Bits
 import Data.Word
+
+import Foreign.C.Types
+
+foreign import ccall "strings.h ffs" c_ffs :: CInt -> CInt
 
 reflect (i,j) offsets = [(i*x,j*y) | (x,y) <- offsets]
 reflections offsets =
@@ -20,7 +26,8 @@ translations offsets =
 
 replaceAt index list value = take index list ++ [value] ++ drop (index+1) list
 
-bitsSet :: Word64 -> Word64
 bitsSet 0 = 0
 bitsSet v | v > 0 = (Bits..&.) v 1 + bitsSet (Bits.shift v (-1))
 
+firstBitSet :: Word32 -> Int
+firstBitSet = fromIntegral . c_ffs . fromIntegral 
