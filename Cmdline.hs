@@ -52,7 +52,7 @@ getPlayedCorner piece state =
      in getCommand corners "corner" " " parseByShow
 
 getPlayedPlacement corner piece =
-    let placements = getPlacementsAt corner piece
+    let placements = getLegalPlacements corner piece
      in getCommand placements "index of placement" "\n" parsePlacement
 
 confirm state (Move coords placement) = do

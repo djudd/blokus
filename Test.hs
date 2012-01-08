@@ -101,14 +101,14 @@ prop_getCornersForMovingPlayer_simpleCase = cornersAfterOneMove == [TerritoryCor
 
 prop_initialCorners_bitmapGtZero = forAllPlayers (\[TerritoryCorner _ _ bits] -> bits > 0) initialCorners
 
-prop_getPlacementsAt_initialCorners_lensEqual =
+prop_getLegalPlacements_initialCorners_lensEqual =
     let allEqual xs = length (nub xs) <= 1
-        initCornersEqual piece = allEqual $ map (length . (`getPlacementsAt` piece) . head) $ getForAllPlayers initialCorners
+        initCornersEqual piece = allEqual $ map (length . (`getLegalPlacements` piece) . head) $ getForAllPlayers initialCorners
      in all initCornersEqual allPieces
 
-prop_getPlacementsAt_initialCorners_nonXNeverNull =
+prop_getLegalPlacements_initialCorners_nonXNeverNull =
     let nonXPieces = filter (/= XPiece) allPieces
-        legalSomehow piece corner = not $ null $ getPlacementsAt corner piece
+        legalSomehow piece corner = not $ null $ getLegalPlacements corner piece
         legalSomehowEverywhere piece = forAllPlayers (all $ legalSomehow piece) initialCorners
      in all legalSomehowEverywhere nonXPieces
 
