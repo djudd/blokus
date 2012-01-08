@@ -60,7 +60,10 @@ allReachableAt offsets cornerType =
 
 getOrigins offsets = filter (allReachableAt offsets) allCornerTypes 
 
-buildPlacement piece origin offsets = Placement piece origin offsets (legalCorners offsets) (toBitmap offsets)
+buildPlacement piece origin offsets = 
+    let bitmap = getBitmap origin (`elem` offsets)
+        corners = legalCorners offsets
+     in Placement piece origin offsets corners bitmap
 
 placementList = 
     [

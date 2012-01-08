@@ -52,11 +52,10 @@ prop_placements_vectorLength = Vector.length placementVector == (numPieces * num
 prop_placements_listAndConcatedVectorLengthsEqual = length (concat $ Vector.toList placementVector) == length placementList
 prop_placements_derivedAndListLengthsEqual = length placementList == length allPlacements
 
-prop_toBitmap_bitsSet =
-    let allOffsets = map (\(Placement _ _ offsets _ _) -> offsets) allPlacements
-        number_bits_set offsets = fromIntegral $ bitsSet $ toBitmap offsets
-        correct_number_bits_set offsets = number_bits_set offsets == length offsets + 1
-    in all correct_number_bits_set allOffsets
+prop_placements_bitsSet =
+    let lengthOffsets (Placement _ _ offsets _ _) = length offsets
+        numberBitsSet (Placement _ _ _ _ bitmap) = fromIntegral (bitsSet bitmap)
+    in all (\placement -> lengthOffsets placement == numberBitsSet placement) allPlacements
 
 instance Arbitrary Piece where
     arbitrary = elements allPieces
@@ -100,7 +99,6 @@ cornersAfterOneMove = getCornersForMovingPlayer red boardWithOneMove (Coords 0 0
 
 prop_getCornersForMovingPlayer_simpleCase = cornersAfterOneMove == [TerritoryCorner (Coords 1 1) UpperRight 0]
 
-prop_allPlacements_bitmapGtZero = all (\(Placement _ _ _ _ bits) -> bits > 0) allPlacements
 prop_initialCorners_bitmapGtZero = forAllPlayers (\[TerritoryCorner _ _ bits] -> bits > 0) initialCorners
 
 prop_getPlacementsAt_initialCorners_lensEqual =

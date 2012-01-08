@@ -1,5 +1,5 @@
 module Offset (
-    toBitmap,
+    getBitmap,
     getOffsets,
     getReachableOffsets,
     fromOffsets,
@@ -14,22 +14,12 @@ import Data.List
 import Types
 import Utils
 
-offsetsIdx :: Offset -> Offset -> Int8
-offsetsIdx x y = case x+4 of
-    0 -> 0
-    1 -> 1 + (y+1) -- -1 <= y <= 1
-    2 -> 4 + (y+2) -- -2 <= y <= 2
-    3 -> 9 + (y+3) -- ...
-    4 -> 16 + (y+4)
-    5 -> 25 + (y+3)
-    6 -> 32 + (y+2)
-    7 -> 37 + (y+1)
-    8 -> 40
-
-toBitmap :: [Offsets] -> ValidityBitmap
-toBitmap offsets = foldl setBit' initial offsets
-    where setBit' bitmap (Offsets x y) = setBit bitmap $ fromIntegral $ offsetsIdx x y
-          initial = setBit' 0 (Offsets 0 0)
+getBitmap :: CornerType -> (Offsets -> Bool) -> ValidityBitmap
+getBitmap cornerType valid = 
+    fst $ foldl setNextBit (0,0) (getReachableOffsets cornerType)
+    where
+        setNextBit (bitmap, bit) offsets = (setBitIfValid offsets bitmap bit, bit + 1)
+        setBitIfValid offsets bitmap bit = if valid offsets then setBit bitmap bit else bitmap
 
 getOffsets piece = toOffsets $ case piece of
     OnePiece -> []

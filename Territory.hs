@@ -45,15 +45,12 @@ getNotTakenCorners board =
 
 validOffset player board (Coords x y) (Offsets i j) =
     let coords = Coords (x+i) (y+j)
-    in onBoard coords && legal player board coords
-
-calculateValidityBitmap player board coords cornerType =
-    toBitmap $ filter (validOffset player board coords) $ getReachableOffsets cornerType
+     in onBoard coords && legal player board coords
 
 translateCorner player board (Coords x y) (PieceCorner (Offsets i j) cornerType) =
     let coords = Coords (x+i) (y+j)
-        bitmap = calculateValidityBitmap player board coords cornerType
-    in TerritoryCorner coords cornerType bitmap
+        bitmap = getBitmap cornerType (validOffset player board coords)
+     in TerritoryCorner coords cornerType bitmap
 
 getCornersForMovingPlayer player board coords addedCorners prevCorners =
     let translated = filter (onBoard . getCoords) $ map (translateCorner player board coords) addedCorners
@@ -66,7 +63,7 @@ getCornersAfterMove boardAfterMove player coords (Placement _ _ _ addedCorners _
      in forPlayerAndRest player forMovingPlayer forRest corners
 
 initialCorners =
-    let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
+    let mkCorner player x y cornerType = [translateCorner player emptyBoard (Coords x y) (PieceCorner (Offsets 0 0) cornerType)]
      in (mkCorner red 0 0 UpperRight,
          mkCorner green boardBound 0 UpperLeft,
          mkCorner yellow boardBound boardBound LowerLeft,
