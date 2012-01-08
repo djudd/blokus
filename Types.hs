@@ -60,10 +60,9 @@ data Placement = Placement !Piece !CornerType ![Offsets] ![PieceCorner] !Validit
 
 newtype Board = Board (Vector Word64)
 
+
 data TerritoryCorner = TerritoryCorner Coords CornerType ValidityBitmap
 
 data Move = Move Coords Placement
 
-type PieceBitmap = Word32
-
-data GameState = State !Turn Board [[TerritoryCorner]] [PieceBitmap]
+data GameState = State !Turn Board [[TerritoryCorner]] [[Piece]]

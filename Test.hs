@@ -10,7 +10,6 @@ import qualified Data.Bits as Bits
 import qualified Data.Vector as Vector
 
 import Types
-import Piece
 import Placement
 import Board
 import Territory
@@ -19,15 +18,6 @@ import GameState
 import Utils
 
 import System.Exit
-
-prop_firstBitSet_zero = 0 == firstBitSet 0
-prop_firstBitSet_one = 1 == firstBitSet 1
-prop_firstBitSet_two = 2 == firstBitSet 2
-prop_firstBitSet_three = 1 == firstBitSet 3
-prop_firstBitSet_four = 3 == firstBitSet 4
-
-prop_iteratePieces_OnePiece = [OnePiece] == iteratePieces 1
-prop_iteratePieces_all = allPieces == iteratePieces (head initialPieces)
 
 prop_placements_one = length (getTransformations OnePiece) == 1
 prop_placements_two = length (getTransformations TwoPiece) == 4
@@ -124,9 +114,9 @@ prop_getPlacementsAt_initialCorners_nonXNeverNull =
 
 prop_getChildren_nonEmpty = (>0) $ length $ getChildren newGame
 prop_getChildren_corners_len = (==numPlayers) $ length $ (\(State _ _ corners _) -> corners) $ head $ getChildren newGame
-prop_getChildren_placements_len = (==numPlayers) $ length $ (\(State _ _ _ pieces) -> pieces) $ head $ getChildren newGame
+prop_getChildren_placements_len = (==numPlayers) $ length $ (\(State _ _ _ placements) -> placements) $ head $ getChildren newGame
 prop_getChildren_corners_allNotEmpty = all (not . null) $ (\(State _ _ corners _) -> corners) $ head $ getChildren newGame
-prop_getChildren_placements_allNotEmpty = all (>0) $ (\(State _ _ _ pieces) -> pieces) $ head $ getChildren newGame
+prop_getChildren_placements_allNotEmpty = all (not . null) $ (\(State _ _ _ placements) -> placements) $ head $ getChildren newGame
 
 getNthGrandChildren 1 = getChildren newGame
 getNthGrandChildren n = concatMap getChildren $ getNthGrandChildren (n-1)
