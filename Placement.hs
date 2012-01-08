@@ -1,5 +1,4 @@
 module Placement (
-    getPiecesAfterMove,
     getPlacementsFor,
     -- below here visible only for testing
     getTransformations,
@@ -86,9 +85,3 @@ getPlacementsFor cornerType piece =
     placementVector `Vector.unsafeIndex` getKey piece cornerType 
 
 getPlacementOffsets (Placement _ _ offsets _ _) = offsets
-
-getPiecesAfterMove player (Placement piece _ _ _ _) pieces =
-    let index = getIndex player
-        moverPieces = pieces !! index
-        moverPieces' = filter (/= piece) moverPieces
-     in replaceAt index pieces moverPieces'

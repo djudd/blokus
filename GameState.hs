@@ -3,9 +3,8 @@ module GameState (
     getChild,
     getChildren,
     getPlayableCorners,
-    getPlayerPieces,
     getPlacementsAt,
-    getPlayerIndex,
+    getPlayer,
 ) where
 
 import Data.Bits
@@ -20,7 +19,7 @@ import Placement
 instance Show GameState where
     show (State _ board _ _) = show board    
 
-newGame = State 0 emptyBoard initialCorners (replicate numPlayers allPieces)
+newGame = State 0 emptyBoard initialCorners (allPieces,allPieces,allPieces,allPieces)
 
 getPlacementsAt (TerritoryCorner coords cornerType bitmap) piece =
     let legalHere = legalAt (TerritoryCorner coords cornerType bitmap)
@@ -31,11 +30,14 @@ legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ _ placementBitmap) =
     (placementBitmap .&. cornerBitmap) == placementBitmap
 
 getChildren (State turn board corners pieces) =
-    let index = getIndex (fromTurn turn)
-        myCorners = corners !! index
-        myPieces = pieces !! index
+    let player = fromTurn turn
+        myCorners = getPlayers player corners
+        myPieces = getPlayers player pieces
         getMyChild (TerritoryCorner coords _ _) = getChild (State turn board corners pieces) coords
      in [getMyChild corner placement | corner <- myCorners, piece <- myPieces, placement <- getPlacementsAt corner piece]
+
+getPiecesAfterMove player (Placement piece _ _ _ _) pieces =
+    forPlayer player (filter (/= piece)) pieces
 
 getChild (State turn board corners pieces) coords placement =
     let player = fromTurn turn
@@ -45,17 +47,12 @@ getChild (State turn board corners pieces) coords placement =
         pieces' = getPiecesAfterMove player placement pieces
      in State turn' board' corners' pieces'
 
-indexFromTurn = getIndex . fromTurn
-
-getPlayerIndex (State turn _ _ _) = 
-    indexFromTurn turn
-
-getPlayerPieces (State turn _ _ pieces) =
-    pieces !! indexFromTurn turn
-
 getPlayableCorners piece (State turn _ corners pieces) =
-    let myCorners = corners !! indexFromTurn turn
-        myPieces = pieces !! indexFromTurn turn
+    let player = fromTurn turn
+        myCorners = getPlayers player corners
+        myPieces = getPlayers player pieces
         hasPlacementsOf corner = not . null . getPlacementsAt corner
         playable corner = any (hasPlacementsOf corner) myPieces
      in filter playable myCorners
+
+getPlayer (State turn _ _ _) = fromTurn turn

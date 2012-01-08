@@ -41,7 +41,7 @@ legal player board coords = unowned board coords && not (touchesSide player boar
 onBoard (Coords x y) = (x >= 0) && (x < boardSize) && (y >= 0) && (y < boardSize)
 
 getNotTakenCorners board =
-    map (filter $ unowned board . getCoords)
+    filter (unowned board . getCoords)
 
 validOffset player board (Coords x y) (Offsets i j) =
     let coords = Coords (x+i) (y+j)
@@ -55,22 +55,19 @@ translateCorner player board (Coords x y) (PieceCorner (Offsets i j) cornerType)
         bitmap = calculateValidityBitmap player board coords cornerType
     in TerritoryCorner coords cornerType bitmap
 
-getCornersForMovingPlayer player board prevCorners coords addedCorners =
+getCornersForMovingPlayer player board coords addedCorners prevCorners =
     let translated = filter (onBoard . getCoords) $ map (translateCorner player board coords) addedCorners
         legalHere = legal player board . getCoords
      in nub $ filter legalHere $ prevCorners ++ translated
 
-getCornersAfterMove :: Board -> Player -> Coords -> Placement -> [[TerritoryCorner]] -> [[TerritoryCorner]]
 getCornersAfterMove boardAfterMove player coords (Placement _ _ _ addedCorners _) corners =
-    let index = getIndex player
-        moverCorners = corners !! index
-        moverCorners' = getCornersForMovingPlayer player boardAfterMove moverCorners coords addedCorners
-        remainingCorners = getNotTakenCorners boardAfterMove corners
-     in replaceAt index remainingCorners moverCorners'
+    let forMovingPlayer = getCornersForMovingPlayer player boardAfterMove coords addedCorners
+        forRest = getNotTakenCorners boardAfterMove
+     in forPlayerAndRest player forMovingPlayer forRest corners
 
 initialCorners =
     let mkCorner player x y cornerType = [TerritoryCorner (Coords x y) cornerType $ calculateValidityBitmap player emptyBoard (Coords x y) cornerType]
-     in [mkCorner red 0 0 UpperRight,
+     in (mkCorner red 0 0 UpperRight,
          mkCorner green boardBound 0 UpperLeft,
          mkCorner yellow boardBound boardBound LowerLeft,
-         mkCorner blue 0 boardBound LowerRight]
+         mkCorner blue 0 boardBound LowerRight)

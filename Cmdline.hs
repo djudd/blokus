@@ -8,6 +8,7 @@ import Data.List
 import Types
 import Placement
 import Territory
+import Player
 import GameState
 
 getCommand options optionType optionSeparator parse =
@@ -42,9 +43,9 @@ parsePlacement options input =
         Nothing -> Nothing
         Just index -> if index < 0 || index >= length options then Nothing else Just $ options !! index
 
-getPlayedPiece state = 
-    let pieces = getPlayerPieces state
-     in getCommand pieces "piece" " " (parsePiece state)
+getPlayedPiece (State turn board corners pieces) = 
+    let myPieces = getPlayers (fromTurn turn) pieces
+     in getCommand myPieces "piece" " " $ parsePiece (State turn board corners pieces)
 
 getPlayedCorner piece state =
     let corners = getPlayableCorners piece state

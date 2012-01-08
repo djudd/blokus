@@ -10,6 +10,7 @@ import qualified Data.Bits as Bits
 import qualified Data.Vector as Vector
 
 import Types
+import Player
 import Placement
 import Board
 import Territory
@@ -18,6 +19,9 @@ import GameState
 import Utils
 
 import System.Exit
+
+getForAllPlayers xs = map (\player -> getPlayers player xs) [red,green,yellow,blue]
+forAllPlayers f xs = all f (getForAllPlayers xs)
 
 prop_placements_one = length (getTransformations OnePiece) == 1
 prop_placements_two = length (getTransformations TwoPiece) == 4
@@ -92,31 +96,31 @@ prop_legal_noSides = not $ legal red boardWithOneMove (Coords 0 1) || legal red 
 prop_legal_corner = legal red boardWithOneMove (Coords 1 1)
 prop_legal_distant = legal red boardWithOneMove (Coords (boardSize-1) (boardSize-1))
 
-cornersAfterOneMove = getCornersForMovingPlayer red boardWithOneMove [TerritoryCorner (Coords 0 0) UpperRight 0] (Coords 0 0) [PieceCorner (Offsets 1 1) UpperRight]
+cornersAfterOneMove = getCornersForMovingPlayer red boardWithOneMove (Coords 0 0) [PieceCorner (Offsets 1 1) UpperRight] [TerritoryCorner (Coords 0 0) UpperRight 0]
 
 prop_getCornersForMovingPlayer_simpleCase = cornersAfterOneMove == [TerritoryCorner (Coords 1 1) UpperRight 0]
 
-prop_initialCorners_len = length initialCorners == numPlayers
-
 prop_allPlacements_bitmapGtZero = all (\(Placement _ _ _ _ bits) -> bits > 0) allPlacements
-prop_initialCorners_bitmapGtZero = all (\(TerritoryCorner _ _ bits) -> bits > 0) $ concat initialCorners
+prop_initialCorners_bitmapGtZero = forAllPlayers (\[TerritoryCorner _ _ bits] -> bits > 0) initialCorners
 
 prop_getPlacementsAt_initialCorners_lensEqual =
     let allEqual xs = length (nub xs) <= 1
-        initCornersEqual piece = allEqual $ map (length . (`getPlacementsAt` piece) . head) initialCorners
+        initCornersEqual piece = allEqual $ map (length . (`getPlacementsAt` piece) . head) $ getForAllPlayers initialCorners
      in all initCornersEqual allPieces
 
 prop_getPlacementsAt_initialCorners_nonXNeverNull =
     let nonXPieces = filter (/= XPiece) allPieces
         legalSomehow piece corner = not $ null $ getPlacementsAt corner piece
-        legalSomehowEverywhere piece = all (legalSomehow piece) (concat initialCorners)
+        legalSomehowEverywhere piece = forAllPlayers (all $ legalSomehow piece) initialCorners
      in all legalSomehowEverywhere nonXPieces
 
-prop_getChildren_nonEmpty = (>0) $ length $ getChildren newGame
-prop_getChildren_corners_len = (==numPlayers) $ length $ (\(State _ _ corners _) -> corners) $ head $ getChildren newGame
-prop_getChildren_placements_len = (==numPlayers) $ length $ (\(State _ _ _ placements) -> placements) $ head $ getChildren newGame
-prop_getChildren_corners_allNotEmpty = all (not . null) $ (\(State _ _ corners _) -> corners) $ head $ getChildren newGame
-prop_getChildren_placements_allNotEmpty = all (not . null) $ (\(State _ _ _ placements) -> placements) $ head $ getChildren newGame
+getPieces (State _ _ _ pieces) = pieces
+getCorners (State _ _ corners _) = corners
+allNonEmpty = forAllPlayers (not . null)
+
+prop_getChildren_nonEmpty = not $ null $ getChildren newGame
+prop_getChildren_corners_allNotEmpty = allNonEmpty $ getCorners $ head $ getChildren newGame
+prop_getChildren_placements_allNotEmpty = allNonEmpty $ getPieces $ head $ getChildren newGame
 
 getNthGrandChildren 1 = getChildren newGame
 getNthGrandChildren n = concatMap getChildren $ getNthGrandChildren (n-1)
