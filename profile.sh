@@ -1,1 +1,1 @@
-dist/build/blokus/blokus +RTS -hy -p -sblokus.summary
+dist/build/blokus/blokus +RTS -hd -p -sblokus.summary

@@ -9,8 +9,8 @@ cabal-version:  >= 1.2
 Executable blokus
     Main-Is:            Main.hs
     Build-depends:      base, vector
-    ghc-options:        -O2 -funbox-strict-fields
-    ghc-prof-options:   -rtsopts -auto-all -caf-all -fforce-recomp
+    ghc-options:        -O2 -fforce-recomp -fllvm -funbox-strict-fields
+    ghc-prof-options:   -rtsopts -auto-all -caf-all
     extensions:         GeneralizedNewtypeDeriving
 
 Test-Suite test-blokus
