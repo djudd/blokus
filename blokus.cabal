@@ -9,8 +9,8 @@ cabal-version:  >= 1.2
 Executable blokus
     Main-Is:            Main.hs
     Build-depends:      base, vector
-    ghc-options:        -fforce-recomp -O2 -optc-O3 -funbox-strict-fields -optc-ffast-math
-    ghc-prof-options:   -rtsopts -auto-all -caf-all -ddump-simpl
+    ghc-options:        -O2 -optc-O3 -funbox-strict-fields -optc-ffast-math
+    ghc-prof-options:   -fforce-recomp -rtsopts -auto-all -caf-all -ddump-simpl
     extensions:         GeneralizedNewtypeDeriving BangPatterns
 
 Test-Suite test-blokus

@@ -1,6 +1,7 @@
 module Offset (
     getBitmap,
     getOffsets,
+    getValue,
     getReachableOffsets,
     fromOffsets,
     toOffsets
@@ -20,6 +21,8 @@ getBitmap cornerType valid =
     where
         setNextBit (bitmap, bit) offsets = (setBitIfValid offsets bitmap bit, bit + 1)
         setBitIfValid offsets bitmap bit = if valid offsets then setBit bitmap bit else bitmap
+
+getValue piece = length (getOffsets piece)
 
 getOffsets piece = toOffsets $ case piece of
     OnePiece -> []

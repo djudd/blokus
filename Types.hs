@@ -11,8 +11,8 @@ type Turn = Int8
 newtype Player = Player Int deriving (Eq,Ord,Enum,Bounded,Show)
 (none:red:green:yellow:blue:_) = [Player 0 ..]
 
-allPlayers = [minBound..maxBound] :: [Player]
-numPlayers = 4 :: Int
+allPlayers = [red,green,yellow,blue] :: [Player]
+numPlayers = length allPlayers :: Int
 
 type Coord = Int8
 type Offset = Int8

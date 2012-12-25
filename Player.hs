@@ -25,6 +25,8 @@ forPlayerAndRest player f g (a, b, c, d)
     | player == yellow  = (g a, g b, f c, g d)
     | player == blue    = (g a, g b, g c, f d)
 
+map' f (a, b, c, d) = [f a, f b, f c, f c]
+
 getPlayers !player !(a, b, c, d)
     | player == red     = a
     | player == green   = b

@@ -17,6 +17,7 @@ import Territory
 import Offset
 import GameState
 import Utils
+import Score
 
 import System.Exit
 
@@ -124,6 +125,8 @@ getNthGrandChildren 1 = getChildren newGame
 getNthGrandChildren n = concatMap getChildren $ getNthGrandChildren (n-1)
 
 prop_getFirstPlayerSecondMove_nonEmpty = not $ null $ getChildren $ head $ getNthGrandChildren 4
+
+prop_initialState_arbitraryWinner = (==(head allPlayers)) $ winner newGame
 
 runTests = $(quickCheckAll)
 
