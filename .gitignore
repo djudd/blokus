@@ -1,0 +1,7 @@
+dist
+.*\.swp
+blokus
+blokus.hp
+blokus.prof
+blokus.summary
+build.out

@@ -1,0 +1,3 @@
+:set -XGeneralizedNewtypeDeriving -XBangPatterns
+:load Main
+:load Test
