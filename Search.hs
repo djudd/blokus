@@ -9,7 +9,7 @@ import Types
 import Player
 import GameState
 
-minimax :: Int -> GameState -> [Float]
+minimax :: Int -> GameState -> [Double]
 minimax 0 node      = heuristicScores node
 minimax depth node  = case getChildren node of 
     []          -> finalScores node

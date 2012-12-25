@@ -21,10 +21,10 @@ instance Show GameState where
 
 newGame = State 0 emptyBoard initialCorners (allPieces,allPieces,allPieces,allPieces)
 
-legalAt (TerritoryCorner _ _ cornerBitmap) (Placement _ _ _ _ placementBitmap) = 
+legalAt !(TerritoryCorner _ _ cornerBitmap) !(Placement _ _ _ _ placementBitmap) = 
     (placementBitmap .&. cornerBitmap) == placementBitmap
 
-getPlacementsAt (TerritoryCorner _ cornerType _) = getPlacementsFor cornerType
+getPlacementsAt !(TerritoryCorner _ cornerType _) = getPlacementsFor cornerType
 
 getChildren state =
     let (State turn _ corners pieces) = state
@@ -32,7 +32,7 @@ getChildren state =
         myCorners = getMy corners
         myPieces = getMy pieces
         getChildAt (TerritoryCorner coords _ _) = getChild state coords
-     in [
+     in {-# SCC getChildren_loop #-} [
             getChildAt corner placement | 
             corner <- myCorners, 
             piece <- myPieces, 

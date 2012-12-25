@@ -9,12 +9,12 @@ cabal-version:  >= 1.2
 Executable blokus
     Main-Is:            Main.hs
     Build-depends:      base, vector
-    ghc-options:        -O2 -fforce-recomp -fllvm -funbox-strict-fields
-    ghc-prof-options:   -rtsopts -auto-all -caf-all
-    extensions:         GeneralizedNewtypeDeriving
+    ghc-options:        -fforce-recomp -O2 -optc-O3 -funbox-strict-fields -optc-ffast-math
+    ghc-prof-options:   -rtsopts -auto-all -caf-all -ddump-simpl
+    extensions:         GeneralizedNewtypeDeriving BangPatterns
 
 Test-Suite test-blokus
     Type:           exitcode-stdio-1.0
     Main-Is:        Test.hs
     Build-depends:  base, vector, QuickCheck
-    extensions:     GeneralizedNewtypeDeriving
+    extensions:     GeneralizedNewtypeDeriving BangPatterns
