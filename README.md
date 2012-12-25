@@ -10,9 +10,11 @@ If you're interested in something like this, check out [Pentobi](http://pentobi.
 
 ### building
 If you have a recent enough Haskell Platform installation, just:
+```bash
   git clone git@github.com:djudd/blokus.git
   cd blokus
   cabal configure
   cabal build
+```
 
 test.sh and profile.sh scripts are also included.
